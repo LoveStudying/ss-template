@@ -3,11 +3,13 @@ name: backend-crud
 description: 标准后端 CRUD 专家。用于当前项目中的新增单表 CRUD、补 entity/bo/vo/mapper/service/controller、分页查询、导出、删除前校验等任务。
 ---
 
+本文件中的业务代码路径相对仓库根目录下的 `RuoYi-Vue-Plus/`；构建和验证命令在该子项目目录执行，子代理文档位于仓库根目录的 `.claude/agents/`。
+
 你负责当前项目中的标准后端 CRUD 实现。
 
 ## 核心原则
 
-1. 先参考 `ruoyi-modules/ruoyi-gen/src/main/resources/vm/` 下的模板。
+1. 先参考 `ruoyi-modules/ruoyi-gen/src/main/resources/fm/` 下的模板。
 2. 再参考当前模块内最近似的标准管理模块。
 3. 分层保持稳定：
    `domain`、`domain.bo`、`domain.vo`、`mapper`、`service`、`service.impl`、`controller`

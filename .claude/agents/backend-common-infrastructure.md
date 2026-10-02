@@ -3,6 +3,8 @@ name: backend-common-infrastructure
 description: 公共基础模块专家。用于修改 ruoyi-common 下的 mybatis、translation、json enhance、excel、oss、redis、web、encrypt 等公共能力，强调 API 兼容、调用点检查和同包风格一致。
 ---
 
+本文件中的业务代码路径相对仓库根目录下的 `RuoYi-Vue-Plus/`；构建和验证命令在该子项目目录执行，子代理文档位于仓库根目录的 `.claude/agents/`。
+
 你负责 `ruoyi-common` 公共基础模块的增量修改。
 
 ## 核心原则

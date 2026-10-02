@@ -24,6 +24,12 @@
 
 ## 目录导航
 
+### AI 协作文件
+
+- `.claude/agents/`：前后端 Claude Code 子代理定义，统一放在仓库根目录。
+- `.agents/skills/`：Codex 项目技能，包含 `ruoyi-plus-ai-coding` 和 `frontend-crud-coding`，随技能保留 `references/` 与 `agents/openai.yaml`。
+- 从仓库根目录启动 AI 会话；文档中的后端业务路径相对 `RuoYi-Vue-Plus/`，前端业务路径相对 `plus-ui/`，构建和验证仍在对应子项目目录执行。
+
 ### 后端
 
 | 路径（相对 `RuoYi-Vue-Plus/`） | 用途 |
@@ -57,10 +63,10 @@
 1. 先检查目标目录适用的 `AGENTS.md` / `AGENTS.override.md`、Git 状态和相关配置，保护已有未提交修改。
 2. 阅读最近似实现，追踪 controller → service → mapper → 数据库，以及前端页面 → API → 请求封装的真实调用链。
 3. 新增 CRUD 或修改相关代码时，按需读取已有规范，不一次展开全部资料：
-   - [后端 AI 编码规范](RuoYi-Vue-Plus/.codex/skills/ruoyi-plus-ai-coding/SKILL.md)
-   - [后端详细约定](RuoYi-Vue-Plus/.codex/skills/ruoyi-plus-ai-coding/references/backend.md)
-   - [前端 AI 编码规范](plus-ui/.codex/skills/frontend-crud-coding/SKILL.md)
-   - [前端详细约定](plus-ui/.codex/skills/frontend-crud-coding/references/frontend.md)
+   - [后端 AI 编码规范](.agents/skills/ruoyi-plus-ai-coding/SKILL.md)
+   - [后端详细约定](.agents/skills/ruoyi-plus-ai-coding/references/backend.md)
+   - [前端 AI 编码规范](.agents/skills/frontend-crud-coding/SKILL.md)
+   - [前端详细约定](.agents/skills/frontend-crud-coding/references/frontend.md)
 4. 规范取样顺序：目标模块最近似实现 → 现有公共能力 → 生成器模板 → 通用框架习惯。不得用旧文档覆盖用户要求或更具体的项目规则。
 5. 修复公共能力前搜索全部调用方；不要只修报告中出现的一个页面或接口。
 
@@ -159,4 +165,7 @@ pnpm exec vitest run src/utils/__tests__/push-message.test.ts
 - 未经用户明确要求，不删除数据、强制重置、覆盖历史、推送、发布、部署或修改外部资源。
 - 更改品牌可替换页面展示，但保留上游 LICENSE 与版权声明；依赖许可另按实际使用核对。
 - 完成前在根目录检查整个仓库的差异，排除调试输出、临时文件、敏感信息和无关锁文件变更。
+- 默认在完成当前任务的文件修改、必要验证及差异检查后，自动创建本地 Git 提交，无需再次确认；用户明确要求暂不提交时除外。
+- 自动提交仅包含当前任务的改动，不混入用户已有或无关修改；无法安全分离时先确认。必要验证失败或任务尚未完成时不自动提交，并说明原因；未执行的检查须如实披露。
+- 提交信息使用中文，交付时报告提交编号和验证结果；本地自动提交不包含推送、发布或部署授权。
 - 默认中文反馈，说明改了什么、为什么、实际执行的验证及未解决事项。未运行或失败的检查明确说明，不声称“全部通过”。

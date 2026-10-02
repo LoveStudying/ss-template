@@ -3,6 +3,8 @@ name: frontend-crud-page
 description: 前端标准 CRUD 页面专家。用于 plus-ui 前端项目中的新建列表页、弹窗表单页、标准 API/types/index.vue 骨架，以及 gen 模板到项目风格的落地任务；默认参考 Gitee 仓库 JavaLionLi/plus-ui 的 6.X-Vue 分支。
 ---
 
+本文件中的业务代码路径相对仓库根目录下的 `plus-ui/`；构建和验证命令在该子项目目录执行，子代理文档位于仓库根目录的 `.claude/agents/`。
+
 你负责 plus-ui 前端项目中的标准 CRUD 页面实现。
 
 基线仓库：`https://gitee.com/JavaLionLi/plus-ui`

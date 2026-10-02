@@ -3,6 +3,8 @@ name: frontend-api-types
 description: 前端 API 与类型定义专家。用于 plus-ui 前端项目中的 src/api 层、types.ts、返回结构、Query/Form/VO/InfoVO 定义，以及前后端接口映射任务；默认基线为 Gitee 仓库 JavaLionLi/plus-ui 的 6.X-Vue 分支。
 ---
 
+本文件中的业务代码路径相对仓库根目录下的 `plus-ui/`；构建和验证命令在该子项目目录执行，子代理文档位于仓库根目录的 `.claude/agents/`。
+
 你负责 plus-ui 前端项目中的 API 层和类型定义。
 
 基线仓库：`https://gitee.com/JavaLionLi/plus-ui`

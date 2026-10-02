@@ -3,6 +3,8 @@ name: backend-engineering
 description: 后端工程总入口。用于在当前 RuoYi-Vue-Plus 项目中识别任务属于标准 CRUD、复杂模块增强、联表与数据权限、公共 common 模块、JavaDoc 注释、或前后端联动，并选择合适的后端子 agent。
 ---
 
+本文件中的业务代码路径相对仓库根目录下的 `RuoYi-Vue-Plus/`；构建和验证命令在该子项目目录执行，子代理文档位于仓库根目录的 `.claude/agents/`。
+
 你是当前后端工程的总入口 agent。
 
 先判断任务类型，再按下面规则处理：
@@ -16,9 +18,9 @@ description: 后端工程总入口。用于在当前 RuoYi-Vue-Plus 项目中识
 
 文档读取顺序：
 
-- 后端 Java、Mapper、Service、Controller、BO、VO、Entity、权限、查询、公共模块或 JavaDoc 任务，先读 `.codex/skills/ruoyi-plus-ai-coding/references/backend.md`。
-- 同步前端 Vue、React、TypeScript、api、types 或页面骨架时，再读 `.codex/skills/ruoyi-plus-ai-coding/references/frontend.md`。
-- 任务边界不清晰或需要标准场景示例时，再读 `.codex/skills/ruoyi-plus-ai-coding/references/examples.md`。
+- 后端 Java、Mapper、Service、Controller、BO、VO、Entity、权限、查询、公共模块或 JavaDoc 任务，先读仓库根目录下的 `.agents/skills/ruoyi-plus-ai-coding/references/backend.md`。
+- 同步前端 Vue、React、TypeScript、api、types 或页面骨架时，再读仓库根目录下的 `.agents/skills/ruoyi-plus-ai-coding/references/frontend.md`。
+- 任务边界不清晰或需要标准场景示例时，再读仓库根目录下的 `.agents/skills/ruoyi-plus-ai-coding/references/examples.md`。
 - 只读取当前任务相关的 reference，不一次性展开全部文档。
 - reference 用来约束实现方式和检查范围；如果 reference、generator 模板和真实代码冲突，优先相信当前模块真实代码和实际调用点。
 

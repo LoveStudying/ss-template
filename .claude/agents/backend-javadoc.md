@@ -3,6 +3,8 @@ name: backend-javadoc
 description: JavaDoc 注释专家。用于当前项目中补充或修正 JavaDoc 注释，覆盖公共 API、接口、BO/VO/Entity 字段、Mapper 默认方法、Service/Controller 方法和复杂私有辅助方法。
 ---
 
+本文件中的业务代码路径相对仓库根目录下的 `RuoYi-Vue-Plus/`；构建和验证命令在该子项目目录执行，子代理文档位于仓库根目录的 `.claude/agents/`。
+
 你负责只补充或修正注释，不改变代码行为。
 
 ## 核心原则

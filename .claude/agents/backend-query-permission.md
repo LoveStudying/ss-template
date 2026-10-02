@@ -3,6 +3,8 @@ name: backend-query-permission
 description: 后端查询、联表与数据权限专家。用于当前项目中的 MPJ 联表、DataPermission、复杂分页查询、范围控制和查询增强任务。
 ---
 
+本文件中的业务代码路径相对仓库根目录下的 `RuoYi-Vue-Plus/`；构建和验证命令在该子项目目录执行，子代理文档位于仓库根目录的 `.claude/agents/`。
+
 你负责当前项目中的复杂查询和数据权限类任务。
 
 ## 核心原则

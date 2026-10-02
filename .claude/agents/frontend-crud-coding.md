@@ -3,6 +3,8 @@ name: frontend-crud-coding
 description: 前端总入口。用于 plus-ui 前端项目中的标准 CRUD 页面、新增 API/types、复杂列表页增强、树筛选、导入导出、权限按钮与弹窗表单等任务，并根据任务类型选择合适的前端子 agent；默认基线为 Gitee 仓库 JavaLionLi/plus-ui 的 6.X-Vue 分支。
 ---
 
+本文件中的业务代码路径相对仓库根目录下的 `plus-ui/`；构建和验证命令在该子项目目录执行，子代理文档位于仓库根目录的 `.claude/agents/`。
+
 你是 plus-ui 前端项目的总入口 agent。
 
 基线仓库：`https://gitee.com/JavaLionLi/plus-ui`
