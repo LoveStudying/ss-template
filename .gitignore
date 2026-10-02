@@ -1,0 +1,88 @@
+# RuoYi-Vue-Plus
+######################################################################
+# Build Tools
+
+/RuoYi-Vue-Plus/**/.gradle
+/RuoYi-Vue-Plus/build/
+!/RuoYi-Vue-Plus/gradle/wrapper/gradle-wrapper.jar
+
+/RuoYi-Vue-Plus/**/target/
+!/RuoYi-Vue-Plus/.mvn/wrapper/maven-wrapper.jar
+
+######################################################################
+# IDE
+
+### STS ###
+/RuoYi-Vue-Plus/**/.apt_generated
+/RuoYi-Vue-Plus/**/.classpath
+/RuoYi-Vue-Plus/**/.factorypath
+/RuoYi-Vue-Plus/**/.project
+/RuoYi-Vue-Plus/**/.settings
+/RuoYi-Vue-Plus/**/.springBeans
+
+### IntelliJ IDEA ###
+/RuoYi-Vue-Plus/**/.idea
+/RuoYi-Vue-Plus/**/*.iws
+/RuoYi-Vue-Plus/**/*.iml
+/RuoYi-Vue-Plus/**/*.ipr
+
+### VS CODE ###
+/RuoYi-Vue-Plus/**/.vscode
+
+### JRebel ###
+/RuoYi-Vue-Plus/**/rebel.xml
+
+### NetBeans ###
+/RuoYi-Vue-Plus/nbproject/private/
+/RuoYi-Vue-Plus/build/*
+/RuoYi-Vue-Plus/**/nbbuild/
+/RuoYi-Vue-Plus/**/nbdist/
+/RuoYi-Vue-Plus/**/.nb-gradle/
+
+######################################################################
+# Others
+/RuoYi-Vue-Plus/**/*.log
+/RuoYi-Vue-Plus/**/*.log.gz
+/RuoYi-Vue-Plus/**/*.xml.versionsBackup
+/RuoYi-Vue-Plus/**/*.swp
+
+!/RuoYi-Vue-Plus/*/build/*.java
+!/RuoYi-Vue-Plus/*/build/*.html
+!/RuoYi-Vue-Plus/*/build/*.xml
+
+/RuoYi-Vue-Plus/**/.flattened-pom.xml
+
+/RuoYi-Vue-Plus/**/application-local.yml
+/RuoYi-Vue-Plus/**/application-ga.yml
+
+# plus-ui
+/plus-ui/**/.DS_Store
+/plus-ui/**/.history
+/plus-ui/**/node_modules/
+/plus-ui/**/dist/
+/plus-ui/**/npm-debug.log*
+/plus-ui/**/yarn-debug.log*
+/plus-ui/**/yarn-error.log*
+/plus-ui/**/*.log
+
+/plus-ui/tests/**/coverage/
+/plus-ui/tests/e2e/reports
+/plus-ui/**/selenium-debug.log
+
+# Editor directories and files
+/plus-ui/**/.idea
+/plus-ui/**/.vscode
+/plus-ui/**/*.iml
+/plus-ui/**/*.suo
+/plus-ui/**/*.ntvs*
+/plus-ui/**/*.njsproj
+/plus-ui/**/*.sln
+/plus-ui/**/*.local
+
+/plus-ui/**/package-lock.json
+/plus-ui/**/yarn.lock
+
+# 编译生成的文件
+/plus-ui/**/auto-imports.d.ts
+/plus-ui/**/components.d.ts
+

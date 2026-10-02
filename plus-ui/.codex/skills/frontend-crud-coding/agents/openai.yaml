@@ -1,0 +1,7 @@
+interface:
+  display_name: "前端编码"
+  short_description: "按 plus-ui 6.X-Vue 真实代码和 gen 模板编写前端 CRUD"
+  default_prompt: "使用 $frontend-crud-coding 先读取适用 reference，再按当前仓库保留的 system/client、system/dept 页面、hooks、API/types 约定和本地 gen 模板实现前端修改；上游 6.X-Vue 仅作来源参考。"
+
+policy:
+  allow_implicit_invocation: true
