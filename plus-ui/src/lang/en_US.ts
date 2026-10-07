@@ -25,11 +25,7 @@ export default {
       }
     },
     social: {
-      wechat: 'Wechat Login',
-      maxkey: 'MaxKey Login',
-      topiam: 'TopIam Login',
-      gitee: 'Gitee Login',
-      github: 'Github Login'
+      sso: '3SBio SSO Login'
     }
   },
   // 注册页面国际化

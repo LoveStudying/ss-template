@@ -80,20 +80,8 @@
         <div class="social-panel">
           <span class="social-label">第三方登录</span>
           <div class="social-actions">
-            <el-button circle :title="$t('login.social.wechat')" @click="doSocialLogin('wechat')">
-              <svg-icon icon-class="wechat" />
-            </el-button>
-            <el-button circle :title="$t('login.social.maxkey')" @click="doSocialLogin('maxkey')">
-              <svg-icon icon-class="maxkey" />
-            </el-button>
-            <el-button circle :title="$t('login.social.topiam')" @click="doSocialLogin('topiam')">
-              <svg-icon icon-class="topiam" />
-            </el-button>
-            <el-button circle :title="$t('login.social.gitee')" @click="doSocialLogin('gitee')">
-              <svg-icon icon-class="gitee" />
-            </el-button>
-            <el-button circle :title="$t('login.social.github')" @click="doSocialLogin('github')">
-              <svg-icon icon-class="github" />
+            <el-button :loading="socialLoading" @click="doSocialLogin">
+              {{ $t('login.social.sso') }}
             </el-button>
           </div>
         </div>
@@ -117,6 +105,8 @@ import { authRouterUrl } from '@/api/system/social/auth';
 import { LoginData } from '@/api/types';
 import { HttpStatus } from '@/enums/RespEnum';
 import { useUserStore } from '@/store/modules/user';
+import { isHandledRequestError } from '@/utils/request';
+import { rememberSocialAuthorization } from '@/utils/social-auth';
 
 const title = import.meta.env.VITE_APP_TITLE;
 const quickStats = [
@@ -163,6 +153,7 @@ const loginRules: ElFormRules = {
 
 const codeUrl = ref('');
 const loading = ref(false);
+const socialLoading = ref(false);
 const captchaEnabled = ref(true);
 const register = ref(false);
 const redirect = ref('/');
@@ -227,14 +218,23 @@ const getLoginData = () => {
   } as LoginData;
 };
 
-const doSocialLogin = (type: string) => {
-  authRouterUrl(type).then((res: any) => {
-    if (res.code === HttpStatus.SUCCESS) {
-      window.location.href = res.data;
-    } else {
-      ElMessage.error(res.msg);
+const doSocialLogin = async () => {
+  if (socialLoading.value) return;
+  socialLoading.value = true;
+  try {
+    const res = await authRouterUrl('sso');
+    if (res.code !== HttpStatus.SUCCESS || !res.data) {
+      throw new Error(res.msg || '无法获取三生 SSO 授权地址');
     }
-  });
+    rememberSocialAuthorization(res.data, 'login', sessionStorage);
+    window.location.assign(res.data);
+  } catch (error) {
+    if (!isHandledRequestError(error)) {
+      ElMessage.error(error instanceof Error ? error.message : '三生 SSO 授权失败');
+    }
+  } finally {
+    socialLoading.value = false;
+  }
 };
 
 onMounted(() => {

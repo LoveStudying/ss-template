@@ -103,7 +103,7 @@ import ThirdParty from './thirdParty.vue';
 import UserAvatar from './userAvatar.vue';
 import UserInfo from './userInfo.vue';
 
-const activeTab = ref('userinfo');
+const activeTab = ref(useRoute().query.tab === 'thirdParty' ? 'thirdParty' : 'userinfo');
 interface State {
   user: Partial<UserVO>;
   roleGroup: string;

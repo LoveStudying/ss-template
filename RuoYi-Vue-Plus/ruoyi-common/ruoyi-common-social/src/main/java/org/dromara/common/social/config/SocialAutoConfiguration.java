@@ -1,6 +1,5 @@
 package org.dromara.common.social.config;
 
-import me.zhyd.oauth.cache.AuthStateCache;
 import org.dromara.common.social.config.properties.SocialProperties;
 import org.dromara.common.social.utils.AuthRedisStateCache;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -22,7 +21,7 @@ public class SocialAutoConfiguration {
      * @return 授权状态缓存
      */
     @Bean
-    public AuthStateCache authStateCache() {
+    public AuthRedisStateCache authStateCache() {
         return new AuthRedisStateCache();
     }
 

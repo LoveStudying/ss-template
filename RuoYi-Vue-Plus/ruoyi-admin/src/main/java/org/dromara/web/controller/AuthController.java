@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.model.AuthResponse;
 import me.zhyd.oauth.model.AuthUser;
+import me.zhyd.oauth.exception.AuthException;
 import me.zhyd.oauth.request.AuthRequest;
 import me.zhyd.oauth.utils.AuthStateUtils;
 import org.dromara.common.core.constant.SystemConstants;
@@ -14,6 +15,7 @@ import org.dromara.common.core.domain.R;
 import org.dromara.common.core.domain.model.LoginBody;
 import org.dromara.common.core.enums.PushSourceEnum;
 import org.dromara.common.core.enums.PushTypeEnum;
+import org.dromara.common.core.exception.ServiceException;
 import org.dromara.common.core.utils.DateUtils;
 import org.dromara.common.core.utils.MessageUtils;
 import org.dromara.common.core.utils.StringUtils;
@@ -21,8 +23,8 @@ import org.dromara.common.core.utils.ValidatorUtils;
 import org.dromara.common.encrypt.annotation.ApiEncrypt;
 import org.dromara.common.json.utils.JsonUtils;
 import org.dromara.common.satoken.utils.LoginHelper;
-import org.dromara.common.social.config.properties.SocialLoginConfigProperties;
 import org.dromara.common.social.config.properties.SocialProperties;
+import org.dromara.common.social.utils.AuthRedisStateCache;
 import org.dromara.common.social.utils.SocialUtils;
 import org.dromara.system.api.MessageService;
 import org.dromara.system.api.domain.PushPayloadDTO;
@@ -57,6 +59,7 @@ import java.util.concurrent.TimeUnit;
 public class AuthController {
 
     private final SocialProperties socialProperties;
+    private final AuthRedisStateCache authStateCache;
     private final SysLoginService loginService;
     private final SysRegisterService registerService;
     private final ISysConfigService configService;
@@ -107,20 +110,34 @@ public class AuthController {
     }
 
     /**
-     * 获取第三方绑定跳转地址。
+     * 获取第三方登录或绑定跳转地址，绑定授权须关联当前登录用户。
      *
      * @param source 登录来源
+     * @param mode login 为登录，binding 为当前用户绑定账号
      * @return 跳转地址
      */
     @GetMapping("/binding/{source}")
-    public R<String> authBinding(@PathVariable("source") String source) {
-        SocialLoginConfigProperties obj = socialProperties.getType().get(source);
-        if (ObjectUtil.isNull(obj)) {
-            return R.fail(source + "平台账号暂不支持");
+    public R<String> authBinding(@PathVariable("source") String source,
+                                 @RequestParam(value = "mode", defaultValue = "login") String mode) {
+        if (!"login".equals(mode) && !"binding".equals(mode)) {
+            throw new ServiceException("不支持的授权操作");
         }
-        AuthRequest authRequest = SocialUtils.getAuthRequest(source, socialProperties);
-        String authorizeUrl = authRequest.authorize(AuthStateUtils.createState());
-        return R.data(authorizeUrl);
+        Long bindingUserId = null;
+        if ("binding".equals(mode)) {
+            StpUtil.checkLogin();
+            bindingUserId = LoginHelper.getUserId();
+        }
+        try {
+            AuthRequest authRequest = SocialUtils.getAuthRequest(source, socialProperties);
+            String state = AuthStateUtils.createState();
+            String authorizeUrl = authRequest.authorize(state);
+            if (bindingUserId != null) {
+                authStateCache.cacheBindingUser(state, bindingUserId);
+            }
+            return R.data(authorizeUrl);
+        } catch (AuthException exception) {
+            return R.fail(exception.getMessage());
+        }
     }
 
     /**
@@ -133,6 +150,10 @@ public class AuthController {
     public R<Void> socialCallback(@RequestBody SocialLoginBody loginBody) {
         // 校验token
         StpUtil.checkLogin();
+        ValidatorUtils.validate(loginBody);
+        if (!authStateCache.consumeBindingUser(loginBody.getSocialState(), LoginHelper.getUserId())) {
+            throw new ServiceException("绑定授权已失效或当前账号已变化，请重新发起绑定");
+        }
         // 获取第三方登录信息
         AuthResponse<AuthUser> response = SocialUtils.loginAuth(
             loginBody.getSource(), loginBody.getSocialCode(),

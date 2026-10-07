@@ -1,5 +1,6 @@
 package org.dromara.system.domain.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 import org.dromara.system.domain.SysSocial;
@@ -44,6 +45,7 @@ public class SysSocialVo implements Serializable {
     /**
      * 用户的授权令牌
      */
+    @JsonIgnore
     private String accessToken;
 
     /**
@@ -54,6 +56,7 @@ public class SysSocialVo implements Serializable {
     /**
      * 刷新令牌，部分平台可能没有
      */
+    @JsonIgnore
     private String refreshToken;
 
     /**
@@ -85,6 +88,7 @@ public class SysSocialVo implements Serializable {
     /**
      * 平台的授权信息，部分平台可能没有
      */
+    @JsonIgnore
     private String accessCode;
 
     /**
@@ -105,6 +109,7 @@ public class SysSocialVo implements Serializable {
     /**
      * id token，部分平台可能没有
      */
+    @JsonIgnore
     private String idToken;
 
     /**
@@ -115,21 +120,25 @@ public class SysSocialVo implements Serializable {
     /**
      * 小米平台用户的附带属性，部分平台可能没有
      */
+    @JsonIgnore
     private String macKey;
 
     /**
      * 用户的授权code，部分平台可能没有
      */
+    @JsonIgnore
     private String code;
 
     /**
      * Twitter平台用户的附带属性，部分平台可能没有
      */
+    @JsonIgnore
     private String oauthToken;
 
     /**
      * Twitter平台用户的附带属性，部分平台可能没有
      */
+    @JsonIgnore
     private String oauthTokenSecret;
 
     /**

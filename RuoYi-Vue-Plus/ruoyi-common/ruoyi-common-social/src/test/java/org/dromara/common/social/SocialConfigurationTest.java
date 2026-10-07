@@ -29,19 +29,19 @@ class SocialConfigurationTest {
     }
 
     /**
-     * 验证不同社交平台的客户端凭据和授权范围可以按类型完整保存。
+     * 验证三生 SSO 的客户端凭据和授权范围可以按类型完整保存。
      */
     @Test
     @DisplayName("保存社交登录配置")
     void shouldStoreSocialProviderConfiguration() {
-        SocialLoginConfigProperties github = new SocialLoginConfigProperties();
-        github.setClientId("client-id");
-        github.setClientSecret("client-secret");
-        github.setScopes(List.of("user:email"));
+        SocialLoginConfigProperties sso = new SocialLoginConfigProperties();
+        sso.setClientId("client-id");
+        sso.setClientSecret("client-secret");
+        sso.setScopes(List.of("read"));
         SocialProperties properties = new SocialProperties();
-        properties.setType(Map.of("github", github));
+        properties.setType(Map.of("sso", sso));
 
-        assertEquals("client-id", properties.getType().get("github").getClientId());
-        assertEquals(List.of("user:email"), properties.getType().get("github").getScopes());
+        assertEquals("client-id", properties.getType().get("sso").getClientId());
+        assertEquals(List.of("read"), properties.getType().get("sso").getScopes());
     }
 }

@@ -83,9 +83,9 @@ export function getCodeImg(): AxiosPromise<VerifyCodeResult> {
 }
 
 /**
- * 第三方登录
+ * 绑定当前系统用户的第三方账号
  */
-export function callback(data: LoginData): AxiosPromise<any> {
+export function callback(data: LoginData): AxiosPromise<void> {
   const LoginData = {
     ...data,
     clientId: clientId,

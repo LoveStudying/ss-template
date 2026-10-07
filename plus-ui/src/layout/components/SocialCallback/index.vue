@@ -1,82 +1,65 @@
 <template>
-  <div v-loading="loading" class="social-callback"></div>
+  <div v-loading="loading" class="social-callback">
+    <el-result v-if="errorMessage" icon="error" title="三生 SSO 授权失败" :sub-title="errorMessage">
+      <template #extra>
+        <el-button type="primary" @click="returnToApp">返回系统</el-button>
+      </template>
+    </el-result>
+  </div>
 </template>
 
 <script setup lang="ts">
+import type { LoginData } from '@/api/types';
 import { login, callback } from '@/api/login';
-import { LoginData } from '@/api/types';
 import { setToken, getToken } from '@/utils/auth';
+import { readSocialCallback } from '@/utils/social-auth';
 
 const route = useRoute();
 const loading = ref(true);
+const errorMessage = ref('');
+let returnPath = 'login';
 
-/**
- * 接收Route传递的参数
- * @param {Object} route.query.
- */
-const code = route.query.code as string;
-const state = route.query.state as string;
-const source = route.query.source as string;
-
-const processResponse = async (res: any) => {
-  if (res.code !== 200) {
-    throw new Error(res.msg);
-  }
-  if (res.data !== null) {
-    setToken(res.data.access_token);
-  }
-  ElMessage.success(res.msg);
-  setTimeout(() => {
-    location.href = import.meta.env.VITE_APP_CONTEXT_PATH + 'index';
-  }, 2000);
-};
-
-const handleError = (error: any) => {
-  ElMessage.error(error.message);
-  setTimeout(() => {
-    location.href = import.meta.env.VITE_APP_CONTEXT_PATH + 'index';
-  }, 2000);
-};
-
-const callbackByCode = async (data: LoginData) => {
-  try {
-    const res = await callback(data);
-    await processResponse(res);
-    loading.value = false;
-  } catch (error) {
-    handleError(error);
-  }
-};
-
-const loginByCode = async (data: LoginData) => {
-  try {
-    const res = await login(data);
-    await processResponse(res);
-    loading.value = false;
-  } catch (error) {
-    handleError(error);
-  }
+const returnToApp = () => {
+  window.location.replace(import.meta.env.VITE_APP_CONTEXT_PATH + returnPath);
 };
 
 const init = async () => {
-  const data: LoginData = {
-    socialCode: code,
-    socialState: state,
-    source: source,
-    clientId: import.meta.env.VITE_APP_CLIENT_ID,
-    grantType: 'social'
-  };
-
-  if (!getToken()) {
-    await loginByCode(data);
-  } else {
-    await callbackByCode(data);
+  try {
+    const authorization = readSocialCallback(route.query, sessionStorage);
+    // 清理地址栏中的一次性授权码；实际调用使用已校验的回调快照。
+    window.history.replaceState(null, '', window.location.pathname);
+    const data: LoginData = {
+      socialCode: authorization.code,
+      socialState: authorization.state,
+      source: 'sso',
+      clientId: import.meta.env.VITE_APP_CLIENT_ID,
+      grantType: 'social'
+    };
+    if (authorization.mode === 'binding') {
+      if (!getToken()) {
+        throw new Error('本地登录已失效，请重新登录后绑定三生账号');
+      }
+      returnPath = 'user/profile?tab=thirdParty';
+      const res = await callback(data);
+      if (res.code !== 200) {
+        throw new Error(res.msg || '三生账号绑定失败');
+      }
+      ElMessage.success('三生账号绑定成功');
+    } else {
+      const res = await login(data);
+      if (res.code !== 200 || !res.data?.access_token) {
+        throw new Error(res.msg || '三生 SSO 登录失败');
+      }
+      setToken(res.data.access_token);
+      returnPath = 'index';
+    }
+    returnToApp();
+  } catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : '三生 SSO 授权失败，请重新尝试';
+  } finally {
+    loading.value = false;
   }
 };
 
-onMounted(() => {
-  nextTick(() => {
-    init();
-  });
-});
+onMounted(init);
 </script>

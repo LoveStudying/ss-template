@@ -1,10 +1,13 @@
+import type { AxiosPromise } from '@/utils/api-types';
+import type { SocialAuthMode } from '@/utils/social-auth';
 import request from '@/utils/request';
 
 // 获取跳转URL
-export function authRouterUrl(source: string) {
+export function authRouterUrl(source: string, mode: SocialAuthMode = 'login'): AxiosPromise<string> {
   return request({
     url: '/auth/binding/' + source,
-    method: 'get'
+    method: 'get',
+    params: { mode }
   });
 }
 

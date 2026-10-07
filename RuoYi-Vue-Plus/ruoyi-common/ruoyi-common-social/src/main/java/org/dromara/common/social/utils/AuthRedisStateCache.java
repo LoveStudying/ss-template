@@ -14,6 +14,29 @@ import java.time.Duration;
 public class AuthRedisStateCache implements AuthStateCache {
 
     /**
+     * 保存本次绑定授权的发起用户，使用独立键避免影响 JustAuth 的 state 校验。
+     *
+     * @param state 授权随机状态
+     * @param userId 已登录的本地用户 ID
+     */
+    public void cacheBindingUser(String state, Long userId) {
+        // 默认 Redis JSON 编码按 Object 读取，小编号数字可能被还原成 Integer。
+        RedisUtils.setCacheObject(GlobalConstants.SOCIAL_AUTH_CODE_KEY + "binding:" + state, userId.toString(), Duration.ofMinutes(3));
+    }
+
+    /**
+     * 原子消费绑定状态并检查用户归属，防止跨账号绑定及重复回调。
+     *
+     * @param state 回调授权状态
+     * @param userId 当前本地用户 ID
+     * @return 当前用户为发起用户且状态尚未过期或消费时返回 true
+     */
+    public boolean consumeBindingUser(String state, Long userId) {
+        String initiatingUserId = RedisUtils.getClient().<String>getBucket(GlobalConstants.SOCIAL_AUTH_CODE_KEY + "binding:" + state).getAndDelete();
+        return userId != null && userId.toString().equals(initiatingUserId);
+    }
+
+    /**
      * 存入缓存
      *
      * @param key   缓存key
