@@ -49,7 +49,7 @@ foreach ($sqlFile in (Get-ChildItem -LiteralPath (Join-Path $backend 'script\sql
                 $failures.Add("重复菜单：$($sqlFile.Name) -> $id")
             }
             $menus[$id] = $menu.Groups[2].Value
-            if ($line -match 'demo:|workflow:|ai:|monitor/(admin|snailai)/index') {
+            if ($line -match 'demo:|workflow:|ai:|monitor/(admin|snailai)/index|AI会话|PLUS官网|aichat|ai/chat/index|https://gitee\.com/dromara/RuoYi-Vue-Plus') {
                 $failures.Add("残留功能菜单：$($sqlFile.Name) -> $id")
             }
             if ($line -match 'monitor/snailjob/index') { $hasJobMenu = $true }
