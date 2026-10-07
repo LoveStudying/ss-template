@@ -438,7 +438,7 @@ onMounted(() => {
 .social-panel {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 16px;
   padding: 14px 16px;
   margin-bottom: 22px;
@@ -456,7 +456,7 @@ onMounted(() => {
 .social-actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 8px;
 }
 
