@@ -2,6 +2,8 @@
 
 本项目按照《三生 SSO 接口文档 V2》的授权码流程接入公司统一认证，作为第三方登录使用。本地账号密码登录保留；用户必须先登录本地账号，在「个人中心 → 第三方应用」绑定三生账号，然后才能使用登录页的「三生 SSO 登录」。不自动注册本地用户，不导入公司角色、权限或组织机构。
 
+登录页沿用圆形图标按钮，三生图标取自[公司官网的站点图标](https://www.3sbio.com/favicon.ico)，原文件保存于前端 `src/assets/logo/3sbio.ico`，随应用构建发布。悬停提示和无障碍名称为「三生 SSO 登录」。
+
 ## 配置
 
 后端配置位于 `ruoyi-admin/src/main/resources/application-dev.yml` 和 `application-prod.yml` 的 `justauth.type.sso`。

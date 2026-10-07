@@ -80,8 +80,15 @@
         <div class="social-panel">
           <span class="social-label">第三方登录</span>
           <div class="social-actions">
-            <el-button :loading="socialLoading" @click="doSocialLogin">
-              {{ $t('login.social.sso') }}
+            <el-button
+              circle
+              class="sso-login-button"
+              :title="$t('login.social.sso')"
+              :aria-label="$t('login.social.sso')"
+              :loading="socialLoading"
+              @click="doSocialLogin"
+            >
+              <img v-if="!socialLoading" :src="ssoIcon" class="sso-login-icon" alt="" />
             </el-button>
           </div>
         </div>
@@ -103,6 +110,7 @@ import { useI18n } from 'vue-i18n';
 import { getCodeImg } from '@/api/login';
 import { authRouterUrl } from '@/api/system/social/auth';
 import { LoginData } from '@/api/types';
+import ssoIcon from '@/assets/logo/3sbio.ico';
 import { HttpStatus } from '@/enums/RespEnum';
 import { useUserStore } from '@/store/modules/user';
 import { isHandledRequestError } from '@/utils/request';
@@ -450,6 +458,18 @@ onMounted(() => {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.sso-login-button {
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+}
+
+.sso-login-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 
 .submit-row {
