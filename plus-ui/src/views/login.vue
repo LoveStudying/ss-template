@@ -106,10 +106,6 @@
         </el-form-item>
       </el-form>
     </div>
-
-    <div class="el-login-footer">
-      <span>Copyright © 2018-{{ currentYear }} 疯狂的狮子Li All Rights Reserved.</span>
-    </div>
   </div>
 </template>
 
@@ -123,7 +119,6 @@ import { HttpStatus } from '@/enums/RespEnum';
 import { useUserStore } from '@/store/modules/user';
 
 const title = import.meta.env.VITE_APP_TITLE;
-const currentYear = new Date().getFullYear();
 const quickStats = [
   { label: '细粒度权限管理', value: '动态权限控制' },
   { label: '主流技术栈', value: '全栈技术集成' },
@@ -513,18 +508,6 @@ onMounted(() => {
     height: 100%;
     object-fit: cover;
   }
-}
-
-.el-login-footer {
-  height: 40px;
-  line-height: 40px;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  text-align: center;
-  color: rgba(226, 232, 240, 0.68);
-  font-size: 12px;
-  letter-spacing: 0.08em;
 }
 
 .login-code-img {

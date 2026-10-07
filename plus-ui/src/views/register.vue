@@ -99,10 +99,6 @@
         </el-form-item>
       </el-form>
     </div>
-
-    <div class="el-register-footer">
-      <span>Copyright © 2018-{{ currentYear }} 疯狂的狮子Li All Rights Reserved.</span>
-    </div>
   </div>
 </template>
 
@@ -113,7 +109,6 @@ import { getCodeImg, register } from '@/api/login';
 import { RegisterForm } from '@/api/types';
 
 const title = import.meta.env.VITE_APP_TITLE;
-const currentYear = new Date().getFullYear();
 const quickStats = [
   { label: '细粒度权限管理', value: '动态权限控制' },
   { label: '主流技术栈', value: '全栈技术集成' },
@@ -461,18 +456,6 @@ onMounted(() => {
   box-shadow:
     0 0 0 1px rgba(53, 109, 255, 0.24) inset,
     0 0 0 4px rgba(53, 109, 255, 0.12);
-}
-
-.el-register-footer {
-  height: 40px;
-  line-height: 40px;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  text-align: center;
-  color: rgba(226, 232, 240, 0.68);
-  font-size: 12px;
-  letter-spacing: 0.08em;
 }
 
 .register-code-img {
