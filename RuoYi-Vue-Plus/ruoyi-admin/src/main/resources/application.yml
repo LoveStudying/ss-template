@@ -36,7 +36,7 @@ logging:
 # 管理后台默认登录入口；SSO 模式仍可通过 /login?local=true 使用本地账号登录
 auth:
   # system：当前登录页；sso：自动跳转三生 SSO
-  login-mode: ${AUTH_LOGIN_MODE:system}
+  login-mode: system
 
 # 用户配置
 user:

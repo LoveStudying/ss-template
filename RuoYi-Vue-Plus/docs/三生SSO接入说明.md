@@ -13,10 +13,10 @@
 ```yaml
 auth:
   # system：系统登录页；sso：自动跳转三生 SSO
-  login-mode: ${AUTH_LOGIN_MODE:system}
+  login-mode: system
 ```
 
-默认值为 `system`，也可通过环境变量 `AUTH_LOGIN_MODE=sso` 切换。仅接受小写 `system` 和 `sso`，空值或其他值会使后端启动校验失败。配置变更后重启后端；前端在每次进入登录入口时读取 `GET /auth/login-config`，无需因模式变更重新构建前端。该公开接口仅返回登录模式，不返回客户端凭据。
+默认值为 `system`，切换时直接在配置文件中将 `auth.login-mode` 改为 `sso` 或 `system`。仅接受小写 `system` 和 `sso`，空值或其他值会使后端启动校验失败。配置变更后重启后端；前端在每次进入登录入口时读取 `GET /auth/login-config`，无需因模式变更重新构建前端。该公开接口仅返回登录模式，不返回客户端凭据。
 
 - `system`：未登录访问后台、直接访问 `/login`、退出登录或确认会话过期后，进入当前账号密码登录页，仍可手动点击三生 SSO 图标登录。
 - `sso`：上述入口自动在当前标签页跳转三生 SSO；登录完成后返回原访问页面，保留查询参数和 URL 片段。首次授权不显示本地账号密码表单。
