@@ -2,10 +2,19 @@ import type { UserInfo } from '@/api/system/user/types';
 import type { AxiosPromise } from '@/utils/api-types';
 import { closePush } from '@/utils/push';
 import request from '@/utils/request';
-import type { LoginData, LoginResult, VerifyCodeResult } from './types';
+import type { LoginConfig, LoginData, LoginResult, VerifyCodeResult } from './types';
 
 // pc端固定客户端授权id
 const clientId = import.meta.env.VITE_APP_CLIENT_ID;
+
+/** 获取未登录时使用的默认登录模式。 */
+export function getLoginConfig(): AxiosPromise<LoginConfig> {
+  return request({
+    url: '/auth/login-config',
+    headers: { isToken: false },
+    method: 'get'
+  });
+}
 
 /**
  * @param data {LoginData}

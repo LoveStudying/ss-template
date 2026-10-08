@@ -134,6 +134,7 @@ java -jar ruoyi-admin/target/ruoyi-admin.jar --spring.profiles.active=dev
 - 项目编译目标为 JDK 21；Wrapper 使用 `JAVA_HOME` 指向的 JDK。每次运行前以 Wrapper 的版本输出确认实际 Java；终端 `java` 的 PATH 版本可能不同，不通过降低编译版本绕过。
 - 环境配置位于 `ruoyi-admin/src/main/resources/application*.yml`；当前 POM 默认 dev，并通过 Maven 过滤 `@profiles.active@`。不要假定已实现纯运行时环境管理。
 - 三生 SSO 配置位于 `justauth.type.sso`：dev 对应测试地址，prod 对应正式地址；客户端凭据、回调地址和授权范围需要填写。接入及联调约束见 [三生 SSO 接入说明](RuoYi-Vue-Plus/docs/三生SSO接入说明.md)。
+- 默认登录入口由 `application.yml` 的 `auth.login-mode`（环境变量 `AUTH_LOGIN_MODE`）控制：`system` 显示系统登录页，`sso` 自动跳转三生 SSO；`/login?local=true` 始终保留本地登录。该配置只选择入口，不禁用本地认证接口。
 - 使用已有 Spring Test、JUnit Jupiter、Mockito。测试主要在 common 模块，另有系统消息和 SnailJob 监控鉴权回归测试；不能据此推断登录和所有系统业务已覆盖。
 - POM 当前 `maven.test.skip=false`，Surefire 排除 `exclude` 标签。不得通过跳过测试或降低断言处理失败。
 - 未确认仓库有统一 Java lint/格式化命令，不凭经验新增插件；只改文档不必启动服务或跑全量构建。

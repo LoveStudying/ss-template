@@ -1,6 +1,15 @@
 <template>
   <div class="login">
-    <div class="login-shell">
+    <div v-if="!showSystemLogin" v-loading="entryLoading" class="login-entry" :aria-busy="entryLoading">
+      <p v-if="entryLoading" role="status" aria-live="polite">正在准备登录…</p>
+      <el-result v-if="entryError" icon="error" title="登录入口暂不可用" :sub-title="entryError">
+        <template #extra>
+          <el-button type="primary" @click="initializeLoginEntry">重试</el-button>
+          <el-button @click="useLocalLogin">使用本地账号登录</el-button>
+        </template>
+      </el-result>
+    </div>
+    <div v-else class="login-shell">
       <section class="login-brand">
         <span class="brand-pill">Plus UI Workspace</span>
         <h1 class="brand-title">企业级后台管理系统</h1>
@@ -108,13 +117,12 @@
 import { to } from 'await-to-js';
 import { useI18n } from 'vue-i18n';
 import { getCodeImg } from '@/api/login';
-import { authRouterUrl } from '@/api/system/social/auth';
 import { LoginData } from '@/api/types';
 import ssoIcon from '@/assets/logo/3sbio.ico';
-import { HttpStatus } from '@/enums/RespEnum';
 import { useUserStore } from '@/store/modules/user';
+import { resolveLoginMode, startSsoLogin } from '@/utils/login-entry';
 import { isHandledRequestError } from '@/utils/request';
-import { rememberSocialAuthorization } from '@/utils/social-auth';
+import { getSafeLoginRedirect } from '@/utils/social-auth';
 
 const title = import.meta.env.VITE_APP_TITLE;
 const quickStats = [
@@ -162,6 +170,10 @@ const loginRules: ElFormRules = {
 const codeUrl = ref('');
 const loading = ref(false);
 const socialLoading = ref(false);
+const showSystemLogin = ref(false);
+const entryLoading = ref(true);
+const entryError = ref('');
+let entryAttempt = 0;
 const captchaEnabled = ref(true);
 const register = ref(false);
 const redirect = ref('/');
@@ -169,8 +181,8 @@ const loginRef = ref<ElFormInstance>();
 
 watch(
   () => router.currentRoute.value,
-  (newRoute: any) => {
-    redirect.value = newRoute.query && newRoute.query.redirect && decodeURIComponent(newRoute.query.redirect);
+  newRoute => {
+    redirect.value = getSafeLoginRedirect(newRoute.query.redirect);
   },
   { immediate: true }
 );
@@ -228,14 +240,10 @@ const getLoginData = () => {
 
 const doSocialLogin = async () => {
   if (socialLoading.value) return;
+  const attempt = entryAttempt;
   socialLoading.value = true;
   try {
-    const res = await authRouterUrl('sso');
-    if (res.code !== HttpStatus.SUCCESS || !res.data) {
-      throw new Error(res.msg || '无法获取三生 SSO 授权地址');
-    }
-    rememberSocialAuthorization(res.data, 'login', sessionStorage);
-    window.location.assign(res.data);
+    await startSsoLogin(redirect.value, () => attempt === entryAttempt);
   } catch (error) {
     if (!isHandledRequestError(error)) {
       ElMessage.error(error instanceof Error ? error.message : '三生 SSO 授权失败');
@@ -245,9 +253,37 @@ const doSocialLogin = async () => {
   }
 };
 
-onMounted(() => {
-  getCode();
-  getLoginData();
+const useLocalLogin = () => {
+  router.replace({ path: '/login', query: { ...router.currentRoute.value.query, local: 'true' } });
+};
+
+const initializeLoginEntry = async () => {
+  const attempt = ++entryAttempt;
+  entryLoading.value = true;
+  entryError.value = '';
+  showSystemLogin.value = false;
+  try {
+    const mode = await resolveLoginMode(router.currentRoute.value.query.local);
+    if (attempt !== entryAttempt) return;
+    if (mode === 'sso') {
+      await startSsoLogin(redirect.value, () => attempt === entryAttempt);
+    } else {
+      getLoginData();
+      await getCode();
+      if (attempt === entryAttempt) showSystemLogin.value = true;
+    }
+  } catch (error) {
+    if (attempt === entryAttempt) {
+      entryError.value = error instanceof Error ? error.message : '无法准备登录入口，请重试';
+    }
+  } finally {
+    if (attempt === entryAttempt) entryLoading.value = false;
+  }
+};
+
+watch(() => router.currentRoute.value.query.local, initializeLoginEntry, { immediate: true });
+onBeforeUnmount(() => {
+  entryAttempt++;
 });
 </script>
 
@@ -262,6 +298,19 @@ onMounted(() => {
     radial-gradient(circle at 12% 12%, rgba(53, 109, 255, 0.22), transparent 24%),
     radial-gradient(circle at 88% 18%, rgba(14, 165, 233, 0.18), transparent 24%),
     linear-gradient(135deg, #071120 0%, #0f1b33 42%, #15345f 100%);
+}
+
+.login-entry {
+  width: min(520px, 100%);
+  min-height: 160px;
+  padding: 24px;
+  border-radius: 20px;
+  background: var(--app-surface-bg);
+  text-align: center;
+
+  :deep(.el-result) {
+    padding: 16px 0;
+  }
 }
 
 .login-shell {

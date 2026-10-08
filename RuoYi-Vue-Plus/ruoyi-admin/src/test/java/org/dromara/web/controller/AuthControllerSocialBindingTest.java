@@ -19,6 +19,7 @@ import org.dromara.system.service.ISysConfigService;
 import org.dromara.system.service.ISysSocialService;
 import org.dromara.web.service.SysLoginService;
 import org.dromara.web.service.SysRegisterService;
+import org.dromara.web.config.properties.LoginProperties;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.AfterAll;
@@ -66,7 +67,18 @@ class AuthControllerSocialBindingTest {
     @Mock private ISysClientService clientService;
     @Mock private ScheduledExecutorService scheduledExecutorService;
     @Mock private MessageService messageService;
+    @Mock private LoginProperties loginProperties;
     @InjectMocks private AuthController controller;
+
+    @Test
+    @DisplayName("未登录用户仅获取公开登录模式")
+    void exposesConfiguredLoginMode() {
+        when(loginProperties.getLoginMode()).thenReturn("sso");
+        var result = controller.loginConfig();
+        assertEquals(200, result.getCode());
+        assertEquals("sso", result.getData().getMode());
+        verifyNoInteractions(socialProperties, authStateCache, loginService, clientService);
+    }
 
     @Test
     @DisplayName("没有当前用户的绑定授权记录时拒绝绑定")

@@ -35,6 +35,8 @@ import org.dromara.system.service.ISysClientService;
 import org.dromara.system.service.ISysConfigService;
 import org.dromara.system.service.ISysSocialService;
 import org.dromara.web.domain.vo.LoginVo;
+import org.dromara.web.domain.vo.LoginConfigVo;
+import org.dromara.web.config.properties.LoginProperties;
 import org.dromara.web.service.IAuthStrategy;
 import org.dromara.web.service.SysLoginService;
 import org.dromara.web.service.SysRegisterService;
@@ -67,7 +69,19 @@ public class AuthController {
     private final ISysClientService clientService;
     private final ScheduledExecutorService scheduledExecutorService;
     private final MessageService messageService;
+    private final LoginProperties loginProperties;
 
+    /**
+     * 获取管理后台默认登录模式，供未登录用户选择登录入口。
+     *
+     * @return 仅包含公开登录模式的配置
+     */
+    @GetMapping("/login-config")
+    public R<LoginConfigVo> loginConfig() {
+        LoginConfigVo config = new LoginConfigVo();
+        config.setMode(loginProperties.getLoginMode());
+        return R.ok(config);
+    }
 
     /**
      * 登录方法

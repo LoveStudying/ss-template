@@ -33,6 +33,11 @@ export interface LoginResult {
   access_token: string;
 }
 
+/** 管理后台公开登录入口配置。 */
+export interface LoginConfig {
+  mode: 'system' | 'sso';
+}
+
 /**
  * 验证码返回
  */
