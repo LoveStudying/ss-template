@@ -4,7 +4,7 @@ import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
 import { parseStrEmpty } from '@/utils/ruoyi';
 import type { DeptTreeVO } from './../dept/types';
-import type { UserForm, UserInfoVO, UserProfileForm, UserQuery, UserVO } from './types';
+import type { UserForm, UserInfoVO, UserProfileForm, UserQuery, UserSyncResultVO, UserVO } from './types';
 
 /**
  * 查询用户列表
@@ -200,6 +200,18 @@ export const listUserByDeptId = (deptId: string | number): AxiosPromise<UserVO[]
 };
 
 /**
+ * 按部门从组织信息来源同步员工
+ * @param deptId 本地普通部门 ID
+ */
+export const syncUsers = (deptId: string | number): AxiosPromise<UserSyncResultVO> => {
+  return request({
+    url: `/system/user/${deptId}/sync`,
+    method: 'post',
+    timeout: 90000
+  });
+};
+
+/**
  * 查询部门下拉树结构
  */
 export const deptTreeSelect = (): AxiosPromise<DeptTreeVO[]> => {
@@ -225,5 +237,6 @@ export default {
   getAuthRole,
   updateAuthRole,
   deptTreeSelect,
-  listUserByDeptId
+  listUserByDeptId,
+  syncUsers
 };

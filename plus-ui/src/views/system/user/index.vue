@@ -124,6 +124,18 @@
                 >
                   解锁
                 </el-button>
+                <el-button
+                  v-hasPermi="['system:user:sync']"
+                  type="primary"
+                  plain
+                  icon="Refresh"
+                  :disabled="!queryParams.deptId"
+                  :loading="isSyncing"
+                  :title="queryParams.deptId ? '' : '请先在左侧选择部门'"
+                  @click="handleSyncUsers"
+                >
+                  同步员工
+                </el-button>
                 <el-dropdown class="mt-[1px]">
                   <el-button plain type="info">
                     更多
@@ -398,6 +410,32 @@
       </template>
     </el-dialog>
 
+    <!-- 员工同步结果对话框 -->
+    <el-dialog v-model="syncResultDialog.visible" :title="syncResultDialog.title" width="780px" append-to-body>
+      <template v-if="syncResult">
+        <el-alert
+          :type="syncResult.warnings.length ? 'warning' : 'success'"
+          :closable="false"
+          :title="syncResult.warnings.length ? '同步已完成，请查看下方提示' : '同步已完成'"
+        />
+        <p>
+          组织来源返回 {{ syncResult.fetched }} 人；新增 {{ syncResult.added }}，更新 {{ syncResult.updated }}，停用
+          {{ syncResult.disabled }}，跳过 {{ syncResult.skipped }}。
+        </p>
+        <el-table v-if="syncResult.warnings.length" :data="syncResult.warnings" border max-height="360">
+          <el-table-column label="类型" width="130">
+            <template #default="scope">{{ syncWarningName(scope.row.type) }}</template>
+          </el-table-column>
+          <el-table-column prop="hrmUserId" label="外部人员 ID" width="120" />
+          <el-table-column prop="name" label="姓名" width="120" />
+          <el-table-column prop="reason" label="说明" />
+        </el-table>
+      </template>
+      <template #footer>
+        <el-button type="primary" @click="closeSyncResult">关闭</el-button>
+      </template>
+    </el-dialog>
+
     <!-- 用户导入对话框 -->
     <el-dialog v-model="upload.open" :title="upload.title" width="400px" append-to-body>
       <el-upload
@@ -454,12 +492,12 @@
 import { to } from 'await-to-js';
 import { useRouter } from 'vue-router';
 import { getConfigKey } from '@/api/system/config';
-import { DeptTreeVO, DeptVO } from '@/api/system/dept/types';
+import { DeptTreeVO } from '@/api/system/dept/types';
 import { optionselect } from '@/api/system/post';
 import { PostVO } from '@/api/system/post/types';
 import { RoleVO } from '@/api/system/role/types';
 import api from '@/api/system/user';
-import { UserForm, UserQuery, UserVO } from '@/api/system/user/types';
+import { UserForm, UserQuery, UserSyncResultVO, UserSyncWarningType, UserVO } from '@/api/system/user/types';
 import TreePanel from '@/components/TreePanel/index.vue';
 import { useLoading } from '@/hooks/async/useLoading';
 import { useDialogState } from '@/hooks/dialog/useDialogState';
@@ -474,6 +512,7 @@ import { useDict } from '@/utils/dict';
 import { checkPermi } from '@/utils/permission';
 import { globalHeaders } from '@/utils/request';
 import { download as requestDownload } from '@/utils/request';
+import { useUserSync } from './useUserSync';
 import UserViewDrawer from './view.vue';
 
 const router = useRouter();
@@ -627,10 +666,40 @@ const filterDisabledDept = (deptList: DeptTreeVO[]): DeptTreeVO[] => {
 };
 
 /** 节点单击事件 */
-const handleNodeClick = (data: DeptVO) => {
+const handleNodeClick = (data: DeptTreeVO) => {
   queryParams.value.deptId = data.id;
+  selectedDeptName.value = data.label;
   handleQuery();
 };
+
+/** 左侧选中部门名称，用于同步确认文案 */
+const selectedDeptName = ref<string>();
+const syncWarningNames: Record<UserSyncWarningType, string> = {
+  SKIPPED: '跳过',
+  FIELD_CLEARED: '字段置空',
+  NOT_RETURNED: '外部未返回',
+  BOUND: '已绑定',
+  CACHE_REFRESH_FAILED: '缓存刷新异常'
+};
+const syncWarningName = (type: UserSyncWarningType) => syncWarningNames[type] ?? type;
+const syncResult = ref<UserSyncResultVO>();
+const {
+  dialog: syncResultDialog,
+  openDialog: openSyncResult,
+  closeDialog: closeSyncResult
+} = useDialogState('员工同步结果');
+const { isSyncing, syncDeptUsers } = useUserSync({
+  sync: api.syncUsers,
+  confirm: deptName => modal.confirm(`将从组织信息来源同步“${deptName}”的员工信息，是否继续？`),
+  reload: () => getList(),
+  notifyResult: result => {
+    syncResult.value = result;
+    openSyncResult();
+  },
+  notifyError: message => modal.msgWarning(message)
+});
+/** 同步左侧选中部门的员工 */
+const handleSyncUsers = () => syncDeptUsers(queryParams.value.deptId, selectedDeptName.value);
 
 /** 搜索按钮操作 */
 const handleQuery = () => {
@@ -644,6 +713,7 @@ const { resetQuery } = useSearchReset({
   resetExtras: () => {
     resetDateRange();
     queryParams.value.deptId = undefined;
+    selectedDeptName.value = undefined;
     treePanelRef.value?.setCurrentKey(undefined);
   },
   afterReset: () => {

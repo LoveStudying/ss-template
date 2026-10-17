@@ -99,3 +99,35 @@ export interface ResetPwdForm {
   newPassword: string;
   confirmPassword: string;
 }
+
+/**
+ * 员工同步提示类型
+ */
+export type UserSyncWarningType = 'SKIPPED' | 'FIELD_CLEARED' | 'NOT_RETURNED' | 'BOUND' | 'CACHE_REFRESH_FAILED';
+
+/**
+ * 员工同步单条提示（不含手机号、邮箱等联系方式）
+ */
+export interface UserSyncWarningVO {
+  type: UserSyncWarningType;
+  /** 外部人员 ID */
+  hrmUserId?: string;
+  /** 人员姓名或本地昵称 */
+  name?: string;
+  /** 中文说明 */
+  reason: string;
+}
+
+/**
+ * 按部门同步员工结果
+ */
+export interface UserSyncResultVO {
+  deptId: string | number;
+  sourceDepartmentId: string;
+  fetched: number;
+  added: number;
+  updated: number;
+  disabled: number;
+  skipped: number;
+  warnings: UserSyncWarningVO[];
+}
