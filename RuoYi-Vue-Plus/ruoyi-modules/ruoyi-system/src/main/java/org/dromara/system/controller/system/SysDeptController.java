@@ -2,6 +2,7 @@ package org.dromara.system.controller.system;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.hutool.core.convert.Convert;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.constant.SystemConstants;
 import org.dromara.common.core.domain.R;
@@ -11,8 +12,10 @@ import org.dromara.common.log.enums.BusinessType;
 import org.dromara.common.redis.annotation.RepeatSubmit;
 import org.dromara.common.web.core.BaseController;
 import org.dromara.system.domain.bo.SysDeptBo;
+import org.dromara.system.domain.vo.DeptSyncResultVo;
 import org.dromara.system.domain.vo.SysDeptVo;
 import org.dromara.system.service.ISysDeptService;
+import org.dromara.system.service.ISysDeptSyncService;
 import org.dromara.system.service.ISysPostService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +35,21 @@ public class SysDeptController extends BaseController {
 
     private final ISysDeptService deptService;
     private final ISysPostService postService;
+    private final ISysDeptSyncService syncService;
+
+    /**
+     * 同步点击节点的全部层级组织来源子部门，跳过停用节点及其子树。
+     *
+     * @param deptId 点击部门本地主键
+     * @return 同步结果
+     */
+    @SaCheckPermission("system:dept:sync")
+    @Log(title = "部门同步", businessType = BusinessType.UPDATE)
+    @RepeatSubmit
+    @PostMapping("/{deptId}/sync-children")
+    public R<DeptSyncResultVo> syncChildren(@NotNull @PathVariable Long deptId) {
+        return R.ok(syncService.syncChildren(deptId));
+    }
 
     /**
      * 查询部门列表。

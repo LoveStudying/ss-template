@@ -18,6 +18,7 @@ import org.dromara.system.domain.bo.SysUserBo;
 import org.dromara.system.domain.vo.SysUserExportVo;
 import org.dromara.system.domain.vo.SysUserVo;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -26,6 +27,22 @@ import java.util.List;
  * @author Lion Li
  */
 public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo>, MPJBaseMapper<SysUser> {
+
+    /**
+     * 读取直接未删除用户的部门 ID，不读取人员资料；结果可重复。
+     *
+     * @param deptIds 部门本地主键集合，为空时返回空列表
+     * @return 有直接用户的部门 ID
+     */
+    List<Long> selectUserDepartments(@Param("deptIds") Collection<Long> deptIds);
+
+    /**
+     * 在 RR 事务内锁定部门索引范围，包括没有用户的空范围。
+     *
+     * @param deptIds 部门本地主键集合，为空时返回空列表
+     * @return 有直接用户的部门 ID
+     */
+    List<Long> lockUserDepartments(@Param("deptIds") Collection<Long> deptIds);
 
     /**
      * 分页查询用户列表，并进行数据权限控制
