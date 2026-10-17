@@ -106,4 +106,54 @@ public class SysDeptVo implements Serializable {
      */
     private List<SysDeptVo> children = new ArrayList<>();
 
+    /**
+     * 外部组织来源的部门类型：分部或普通部门，为空表示未绑定来源。
+     */
+    private String deptType;
+
+    /**
+     * 外部组织来源业务身份，保留来源原值，与部门类型共同构成来源唯一标识。
+     */
+    private String businessId;
+
+    /**
+     * 外部组织来源所属分部 ID，历史命名 hrm_subcompany_id。
+     */
+    private String hrmSubcompanyId;
+
+    /**
+     * 外部组织来源的上级部门 ID，历史命名 hrm_supdepartment_id。
+     */
+    private String hrmSupdepartmentId;
+
+    /**
+     * 外部组织来源的上级分部 ID，历史命名 hrm_supsubcompany_id。
+     */
+    private String hrmSupsubcompanyId;
+
+    /**
+     * 外部组织来源部门编码，历史命名 hrm_code；不作为身份键。
+     */
+    private String hrmCode;
+
+    /**
+     * 外部组织来源部门全称，历史命名 hrm_full_name。
+     */
+    private String hrmFullName;
+
+    /**
+     * 外部组织来源原始停用状态，历史命名 hrm_canceled；保留来源原值。
+     */
+    private String hrmCanceled;
+
+    /**
+     * 外部组织来源记录的变更时间，历史命名 hrm_last_change_time。
+     */
+    private LocalDateTime hrmLastChangeTime;
+
+    /**
+     * 该部门最近一次成功同步的时间。
+     */
+    private LocalDateTime lastSyncTime;
+
 }

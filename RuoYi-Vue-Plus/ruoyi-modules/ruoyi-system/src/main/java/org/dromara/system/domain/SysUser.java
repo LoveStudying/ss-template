@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.dromara.common.core.constant.SystemConstants;
 import org.dromara.common.mybatis.core.domain.BaseEntity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -102,6 +103,41 @@ public class SysUser extends BaseEntity {
      * 备注
      */
     private String remark;
+
+    /**
+     * 外部组织来源的人员主键，历史命名 hrm_user_id；员工同步的匹配键。
+     */
+    private String hrmUserId;
+
+    /**
+     * 外部组织来源的人员编码，历史命名 hrm_workcode；不作为身份键。
+     */
+    private String hrmWorkcode;
+
+    /**
+     * 外部组织来源的原始人员状态，历史命名 hrm_status；保留原值，是否在职由来源适配器解释。
+     */
+    private String hrmStatus;
+
+    /**
+     * 外部组织来源的原始部门 ID，历史命名 hrm_department_id；用于判断员工归属是否变化。
+     */
+    private String hrmDepartmentId;
+
+    /**
+     * 外部组织来源的原始分部 ID，历史命名 hrm_subcompany_id。
+     */
+    private String hrmSubcompanyId;
+
+    /**
+     * 外部组织来源记录的最后变更日期，历史命名 hrm_last_change_date。
+     */
+    private LocalDate hrmLastChangeDate;
+
+    /**
+     * 该用户最近一次被员工同步写入的时间，历史命名 hrm_sync_time。
+     */
+    private LocalDateTime hrmSyncTime;
 
 
     /**
