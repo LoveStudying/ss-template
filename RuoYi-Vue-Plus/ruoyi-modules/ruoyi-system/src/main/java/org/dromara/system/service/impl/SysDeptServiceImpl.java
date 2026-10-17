@@ -6,6 +6,7 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.dromara.common.core.constant.CacheNames;
@@ -49,6 +50,7 @@ public class SysDeptServiceImpl implements ISysDeptService, DeptService {
     private final SysDeptMapper deptMapper;
     private final SysRoleMapper roleMapper;
     private final SysUserMapper userMapper;
+    private final DeptBindingValidator bindingValidator;
 
     /**
      * 分页查询部门管理数据
@@ -102,6 +104,8 @@ public class SysDeptServiceImpl implements ISysDeptService, DeptService {
             .likeIfText(SysDept::getDeptName, bo.getDeptName())
             .likeIfText(SysDept::getDeptCategory, bo.getDeptCategory())
             .eqIfText(SysDept::getStatus, bo.getStatus())
+            .eqIfText(SysDept::getDeptType, bo.getDeptType())
+            .eqIfText(SysDept::getBusinessId, bo.getBusinessId())
             .betweenParams(SysDept::getCreateTime, params, "beginTime", "endTime")
             .orderByAsc(SysDept::getAncestors, SysDept::getParentId, SysDept::getOrderNum, SysDept::getDeptId);
         if (ObjectUtil.isNotNull(bo.getBelongDeptId())) {
@@ -308,8 +312,10 @@ public class SysDeptServiceImpl implements ISysDeptService, DeptService {
      */
     @CacheEvict(cacheNames = CacheNames.SYS_DEPT_AND_CHILD, allEntries = true)
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertDept(SysDeptBo bo) {
-        SysDept info = deptMapper.selectById(bo.getParentId());
+        List<SysDept> parents = deptMapper.lockSourceDepartmentRows(List.of(bo.getParentId()));
+        SysDept info = parents.isEmpty() || !"0".equals(parents.getFirst().getDelFlag()) ? null : parents.getFirst();
         // 如果父节点不存在或不为正常状态,则不允许新增子节点
         if (ObjectUtil.isNull(info)) {
             throw new ServiceException("父部门不存在");
@@ -319,6 +325,8 @@ public class SysDeptServiceImpl implements ISysDeptService, DeptService {
         }
         SysDept dept = MapstructUtils.convert(bo, SysDept.class);
         dept.setAncestors(info.getAncestors() + StringUtils.SEPARATOR + dept.getParentId());
+        // 绑定字段经校验器归一化（空白视为 null）后才落库，避免空串触发身份唯一索引冲突。
+        bindingValidator.validateAndApply(bo, null, dept);
         return deptMapper.insert(dept);
     }
 
@@ -336,10 +344,14 @@ public class SysDeptServiceImpl implements ISysDeptService, DeptService {
     @Transactional(rollbackFor = Exception.class)
     public int updateDept(SysDeptBo bo) {
         SysDept dept = MapstructUtils.convert(bo, SysDept.class);
-        SysDept oldDept = deptMapper.selectById(dept.getDeptId());
+        // 普通编辑也先取得当前记录锁，防止等待同步提交后用陈旧快照覆盖绑定与树关系。
+        List<SysDept> locked = deptMapper.lockSourceDepartmentRows(List.of(dept.getDeptId()));
+        SysDept oldDept = locked.isEmpty() || !"0".equals(locked.getFirst().getDelFlag()) ? null : locked.getFirst();
         if (ObjectUtil.isNull(oldDept)) {
             throw new ServiceException("部门不存在，无法修改");
         }
+        // 校验器在转换之后执行并覆盖 BO 带入的绑定字段，归一化后的值优先。
+        bindingValidator.validateAndApply(bo, oldDept, dept);
         if (!oldDept.getParentId().equals(dept.getParentId())) {
             // 如果是新父部门 则校验是否具有新父部门权限 避免越权
             this.checkDeptDataScope(dept.getParentId());
@@ -354,6 +366,17 @@ public class SysDeptServiceImpl implements ISysDeptService, DeptService {
             dept.setAncestors(oldDept.getAncestors());
         }
         int result = deptMapper.updateById(dept);
+        // 全局更新策略为 NOT_NULL，绑定与快照字段需显式更新以支持清空为 null。
+        deptMapper.update(null, Wrappers.<SysDept>lambdaUpdate()
+            .eq(SysDept::getDeptId, dept.getDeptId())
+            .set(SysDept::getDeptType, dept.getDeptType()).set(SysDept::getBusinessId, dept.getBusinessId())
+            .set(SysDept::getHrmSubcompanyId, dept.getHrmSubcompanyId())
+            .set(SysDept::getHrmSupdepartmentId, dept.getHrmSupdepartmentId())
+            .set(SysDept::getHrmSupsubcompanyId, dept.getHrmSupsubcompanyId())
+            .set(SysDept::getHrmCode, dept.getHrmCode()).set(SysDept::getHrmFullName, dept.getHrmFullName())
+            .set(SysDept::getHrmCanceled, dept.getHrmCanceled())
+            .set(SysDept::getHrmLastChangeTime, dept.getHrmLastChangeTime())
+            .set(SysDept::getLastSyncTime, dept.getLastSyncTime()));
         // 如果部门状态为启用，且部门祖级列表不为空，且部门祖级列表不等于根部门祖级列表（如果部门祖级列表不等于根部门祖级列表，则说明存在上级部门）
         if (SystemConstants.NORMAL.equals(dept.getStatus())
             && StringUtils.isNotEmpty(dept.getAncestors())

@@ -4,4 +4,56 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.dromara.system.mapper.SysDeptMapper">
 
+    <select id="lockSourceDepartmentRows" resultType="org.dromara.system.domain.SysDept">
+        SELECT * FROM sys_dept WHERE
+        <choose><when test="localIds != null and !localIds.isEmpty()">
+            dept_id IN <foreach collection="localIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+        </when><otherwise>1=0</otherwise></choose>
+        ORDER BY dept_id FOR UPDATE
+    </select>
+
+    <select id="lockSourceChildren" resultType="org.dromara.system.domain.SysDept">
+        SELECT * FROM sys_dept FORCE INDEX (idx_sys_dept_parent_id) WHERE del_flag='0' AND
+        <choose><when test="parentIds != null and !parentIds.isEmpty()">
+            parent_id IN <foreach collection="parentIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+        </when><otherwise>1=0</otherwise></choose>
+        ORDER BY parent_id,dept_id FOR UPDATE
+    </select>
+
+    <select id="selectSourceNameConflicts" resultType="java.lang.Long">
+        SELECT a.dept_id FROM sys_dept a JOIN sys_dept b ON a.parent_id=b.parent_id
+            AND a.dept_name=b.dept_name AND a.dept_id != b.dept_id AND b.del_flag='0'
+        WHERE a.del_flag='0' AND
+        <choose><when test="localIds != null and !localIds.isEmpty()">
+            a.dept_id IN <foreach collection="localIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+        </when><otherwise>1=0</otherwise></choose>
+        LIMIT 1
+    </select>
+
+    <update id="updateSourceSnapshot">
+        UPDATE sys_dept SET parent_id=#{parentId},ancestors=#{ancestors},dept_name=#{deptName},order_num=#{orderNum},
+            status=#{status},dept_type=#{deptType},business_id=#{businessId},hrm_subcompany_id=#{hrmSubcompanyId},
+            hrm_supdepartment_id=#{hrmSupdepartmentId},hrm_supsubcompany_id=#{hrmSupsubcompanyId},hrm_code=#{hrmCode},
+            hrm_full_name=#{hrmFullName},hrm_canceled=#{hrmCanceled},hrm_last_change_time=#{hrmLastChangeTime},
+            last_sync_time=#{lastSyncTime},update_by=#{updateBy},update_time=#{updateTime}
+        WHERE dept_id=#{deptId} AND del_flag='0'
+    </update>
+
+    <select id="selectIdentityRows" resultType="org.dromara.system.domain.SysDept">
+        SELECT * FROM sys_dept WHERE
+        <choose><when test="businessIds != null and !businessIds.isEmpty()">
+            business_id IN <foreach collection="businessIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+        </when><otherwise>1=0</otherwise></choose>
+    </select>
+
+    <select id="selectSourceRelatedRows" resultType="org.dromara.system.domain.SysDept">
+        SELECT * FROM sys_dept WHERE del_flag='0' AND
+        <choose><when test="localIds != null and !localIds.isEmpty()">
+            (<foreach collection="localIds" item="id" separator=" OR ">
+                dept_id=#{id} OR parent_id=#{id} OR FIND_IN_SET(#{id},ancestors)
+            </foreach>)
+        </when><otherwise>1=0</otherwise></choose>
+        ORDER BY dept_id
+    </select>
+
 </mapper>
