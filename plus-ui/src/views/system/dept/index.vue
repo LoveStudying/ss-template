@@ -93,7 +93,7 @@
         <el-table-column label="所属分部" align="center" width="130">
           <template #default="scope">{{ scope.row.hrmSubcompanyId || '未配置' }}</template>
         </el-table-column>
-        <el-table-column label="来源状态" align="center" width="100">
+        <el-table-column label="外部停用状态" align="center" width="100">
           <template #default="scope">{{ sourceStatusName(scope.row.hrmCanceled) }}</template>
         </el-table-column>
         <el-table-column label="最近同步时间" align="center" width="180">
@@ -250,7 +250,7 @@
           <el-col v-if="sourceSnapshot?.deptType && sourceSnapshot.businessId" :span="24">
             <el-form-item label="来源信息">
               <span>
-                来源状态：{{ sourceStatusName(sourceSnapshot.hrmCanceled) }}；上级 ID：{{
+                外部停用状态：{{ sourceStatusName(sourceSnapshot.hrmCanceled) }}；上级 ID：{{
                   sourceSnapshot.hrmSupdepartmentId || sourceSnapshot.hrmSupsubcompanyId || '未配置'
                 }}
                 <br />
@@ -296,7 +296,7 @@
           <el-table-column label="本地状态" width="100">
             <template #default="scope">{{ localStatusName(scope.row.localStatus) }}</template>
           </el-table-column>
-          <el-table-column label="来源状态" width="110">
+          <el-table-column label="外部停用状态" width="110">
             <template #default="scope">{{ sourceStatusName(scope.row.hrmCanceled) }}</template>
           </el-table-column>
         </el-table>

@@ -89,13 +89,13 @@ public class SysDeptBo implements Serializable {
     private Map<String, Object> params = new HashMap<>();
 
     /**
-     * 外部组织来源的部门类型：分部或普通部门（历史命名 dept_type）；人工维护的绑定字段。
+     * 部门类型：分部或普通部门，可空。
      */
     @Size(min = 0, max = 16, message = "部门类型长度不能超过{max}个字符")
     private String deptType;
 
     /**
-     * 外部组织来源业务身份（历史命名 business_id），保留原值，与部门类型共同构成来源唯一标识。
+     * 外部组织来源业务身份，可空；与部门类型共同构成来源唯一标识。
      */
     @Size(min = 0, max = 64, message = "业务身份长度不能超过{max}个字符")
     private String businessId;
