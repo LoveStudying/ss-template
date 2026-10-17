@@ -6,7 +6,7 @@
 
 模块位于 `RuoYi-Vue-Plus/ruoyi-common/ruoyi-common-hrm`，只提供协议客户端、查询服务和联调控制器；`ruoyi-system` 中的 `HrmOrgSyncSource` 负责把查询结果转换为组织同步的中性模型。
 
-- 仅当 `org-sync.source=hrm` 时，自动配置才会注册 `HrmProperties`、`HrmClient`、`HrmQueryService` 和 `HrmQueryController`；`org-sync.source=none` 时不加载本模块的任何 Bean，也不要求任何 `hrm.*` 配置。该配置项在启动模块的 `application.yml` 中声明。
+- 仅当 `org-sync.source` 为 `hrm` 或未配置时，自动配置才会注册 `HrmProperties`、`HrmClient`、`HrmQueryService` 和 `HrmQueryController`；`org-sync.source=none` 时不加载本模块的任何 Bean，也不要求任何 `hrm.*` 配置。该配置项在启动模块的 `application.yml` 中声明。
 - 未配置 `org-sync.source` 时按默认的 `hrm` 处理（条件带 `matchIfMissing=true`），与配置对象 `OrgSyncProperties.source` 的默认值保持一致，避免两处对「默认值」理解不同。
 - `HrmQueryController` 本身也带有相同的 `@ConditionalOnProperty`。启动类扫描 `org.dromara` 包时，组件扫描会按该条件跳过控制器，因此 `none` 模式下即使模块在类路径上，也不会出现缺少 `HrmQueryService` 的启动失败，`/hrm/*` 同样不存在。
 - `HrmClient` 的资源释放由自动配置的 Bean 定义（`destroyMethod = "close"`）负责，客户端本身不再声明 `@PreDestroy`。

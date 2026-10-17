@@ -3,7 +3,7 @@
 ## 目标与当前状态
 
 - 本项目准备以开源 RuoYi-Vue-Plus / plus-ui 为基础，改造成公司内部小型 Spring Boot 项目的模板，并支持后续 AI 辅助开发。
-- 当前已移除演示模块、AI 业务/SnailAI/MCP、WarmFlow/LiteFlow、独立 Boot Admin、Elasticsearch 和 MQTT；保留系统管理、认证、Redis、OSS、消息推送、代码生成器与 SnailJob。
+- 当前已移除演示模块、AI 业务/SnailAI/MCP、WarmFlow/LiteFlow、独立 Boot Admin、Elasticsearch 和 MQTT；保留系统管理、认证、Redis、OSS、消息推送、代码生成器、SnailJob 与组织信息同步（HRM）。
 - 开发原则：理解真实调用链后做最小改动，优先复用现有能力；不为未来需求新增抽象、依赖、服务或框架。
 - 公司统一登录采用三生 SSO，保留本地账号密码登录，用户须先在个人中心绑定三生账号；审批流程、文件存储、数据库及部署规模尚未最终确定，会影响这些边界的变更先确认需求。
 - 本文件是项目导航和协作约定，具体行为以当前代码和构建配置为准。目录、命令或架构变化后同步更新本文件。
@@ -38,6 +38,7 @@
 | `ruoyi-api/` | 模块间共享接口、登录模型、DTO；不是另一个独立 HTTP 服务 |
 | `ruoyi-common/` | 基础能力及其 BOM：core、web、json、mybatis、satoken、security、redis、log、excel 等，以及可选扩展 |
 | `ruoyi-common/ruoyi-common-social/` | 三生 SSO 授权码协议适配，平台标识为 `sso`，以 `adAccount` 关联本地绑定；不自动创建用户或同步公司角色 |
+| `ruoyi-common/ruoyi-common-hrm/` | 泛微 OA HRM SOAP 只读客户端与 `/hrm/*` 联调接口，仅 `org-sync.source` 为 `hrm` 或未配置时加载；同步规则与 `OrgSyncSource` 来源接口在 `ruoyi-system` |
 | `ruoyi-modules/ruoyi-system/` | 用户、角色、菜单、部门、岗位、字典、参数、日志、文件、客户端和消息等系统功能 |
 | `ruoyi-modules/ruoyi-gen/` | 代码生成器，模板位于 `src/main/resources/fm/` |
 | `ruoyi-modules/ruoyi-job/` | 任务调度业务 |
@@ -134,8 +135,9 @@ java -jar ruoyi-admin/target/ruoyi-admin.jar --spring.profiles.active=dev
 - 项目编译目标为 JDK 21；Wrapper 使用 `JAVA_HOME` 指向的 JDK。每次运行前以 Wrapper 的版本输出确认实际 Java；终端 `java` 的 PATH 版本可能不同，不通过降低编译版本绕过。
 - 环境配置位于 `ruoyi-admin/src/main/resources/application*.yml`；当前 POM 默认 dev，并通过 Maven 过滤 `@profiles.active@`。不要假定已实现纯运行时环境管理。
 - 三生 SSO 配置位于 `justauth.type.sso`：dev 对应测试地址，prod 对应正式地址；客户端凭据、回调地址和授权范围需要填写。接入及联调约束见 [三生 SSO 接入说明](RuoYi-Vue-Plus/docs/三生SSO接入说明.md)。
+- 组织信息来源由 `application.yml` 的 `org-sync.source` 配置（`hrm`/`none`，其他值启动失败）；HRM 地址见 dev/prod 配置的 `hrm.endpoint`，`HRM_CLIENT_IP` 必须填写经接口方加入 OA 白名单的地址才能实际调用。外网无法联调，见 [组织信息来源接入说明](RuoYi-Vue-Plus/docs/组织信息来源接入说明.md)。
 - 默认登录入口直接在 `application.yml` 的 `auth.login-mode` 中配置，默认 `system`：`system` 显示系统登录页，`sso` 自动跳转三生 SSO；`/login?local=true` 始终保留本地登录。该配置只选择入口，不禁用本地认证接口。
-- 使用已有 Spring Test、JUnit Jupiter、Mockito。测试主要在 common 模块，另有系统消息和 SnailJob 监控鉴权回归测试；不能据此推断登录和所有系统业务已覆盖。
+- 使用已有 Spring Test、JUnit Jupiter、Mockito。测试主要在 common 模块，另有系统消息、组织信息同步（mock 来源，未连真实 OA 和数据库）和 SnailJob 监控鉴权回归测试；不能据此推断登录和所有系统业务已覆盖。
 - POM 当前 `maven.test.skip=false`，Surefire 排除 `exclude` 标签。不得通过跳过测试或降低断言处理失败。
 - 未确认仓库有统一 Java lint/格式化命令，不凭经验新增插件；只改文档不必启动服务或跑全量构建。
 
@@ -151,11 +153,12 @@ pnpm exec vue-tsc --noEmit
 pnpm lint
 pnpm build
 pnpm exec vitest run src/utils/__tests__/push-message.test.ts
+pnpm exec vitest run src/utils/__tests__/dept-sync.test.ts src/utils/__tests__/user-sync.test.ts
 ```
 
 - 开发代理在 `vite.config.ts` 中指向 `http://localhost:8080`；前端端口和 API 前缀由 `.env.development` 等配置提供。
 - 格式化脚本为 `pnpm run fmt`，会格式化整个项目；小改动优先限制文件范围，避免无关差异。
-- 当前有消息回归测试 `src/utils/__tests__/push-message.test.ts`，但没有 package.json 测试脚本；使用上面的 Vitest 命令，不要声称 `pnpm test` 已可用。
+- 当前有消息回归测试 `src/utils/__tests__/push-message.test.ts` 及组织同步回归测试 `dept-sync.test.ts`、`user-sync.test.ts`，但没有 package.json 测试脚本；使用上面的 Vitest 命令，不要声称 `pnpm test` 已可用。
 - 首次检出时，先运行构建生成被忽略的自动导入和组件类型声明，再运行类型检查；不要用关闭检查来处理缺少生成声明。
 - `tsconfig.json` 当前关闭部分严格检查，构建成功不能替代类型检查。
 
