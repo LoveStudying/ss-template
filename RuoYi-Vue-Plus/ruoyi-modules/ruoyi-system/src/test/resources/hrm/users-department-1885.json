@@ -1,0 +1,54 @@
+[
+  {
+    "userid": "529155",
+    "workcode": "",
+    "loginid": "",
+    "lastname": "测试员1",
+    "sex": "男",
+    "email": "user1@example.test",
+    "mobile": "13800000001",
+    "status": "5",
+    "departmentid": "1885",
+    "subcompanyid1": "48",
+    "lastChangdate": "2023-02-17"
+  },
+  {
+    "userid": "529349",
+    "workcode": "",
+    "loginid": "",
+    "lastname": "测试员2",
+    "sex": "女",
+    "email": "",
+    "mobile": "13800000002",
+    "status": "5",
+    "departmentid": "1885",
+    "subcompanyid1": "48",
+    "lastChangdate": "2023-02-17"
+  },
+  {
+    "userid": "529480",
+    "workcode": "",
+    "loginid": "",
+    "lastname": "测试员3",
+    "sex": "男",
+    "email": "user3@example.test",
+    "mobile": "13800000003",
+    "status": "5",
+    "departmentid": "1885",
+    "subcompanyid1": "48",
+    "lastChangdate": "2023-02-17"
+  },
+  {
+    "userid": "538233",
+    "workcode": "910052",
+    "loginid": "testuser04",
+    "lastname": "测试员4",
+    "sex": "女",
+    "email": "user4@example.test",
+    "mobile": "13800000004",
+    "status": "1",
+    "departmentid": "1885",
+    "subcompanyid1": "48",
+    "lastChangdate": "2025-09-01"
+  }
+]
