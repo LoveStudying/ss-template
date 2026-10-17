@@ -36,6 +36,7 @@ import org.dromara.system.service.ISysDeptService;
 import org.dromara.system.service.ISysPostService;
 import org.dromara.system.service.ISysRoleService;
 import org.dromara.system.service.ISysUserService;
+import org.dromara.system.service.IUserSyncService;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -59,6 +60,7 @@ public class SysUserController extends BaseController {
     private final ISysRoleService roleService;
     private final ISysPostService postService;
     private final ISysDeptService deptService;
+    private final IUserSyncService userSyncService;
 
     /**
      * 分页查询用户列表。
@@ -101,6 +103,20 @@ public class SysUserController extends BaseController {
             .listener(new SysUserImportListener(updateSupport))
             .doRead();
         return R.ok(result.getAnalysis());
+    }
+
+    /**
+     * 按部门绑定的外部部门 ID 从组织信息来源同步员工。
+     *
+     * @param deptId 本地普通部门 ID
+     * @return 同步统计与提示
+     */
+    @SaCheckPermission("system:user:sync")
+    @Log(title = "用户员工同步", businessType = BusinessType.UPDATE)
+    @RepeatSubmit
+    @PostMapping("/{deptId}/sync")
+    public R<UserSyncResultVo> syncEmployees(@NotNull(message = "部门ID不能为空") @PathVariable Long deptId) {
+        return R.ok(userSyncService.syncDepartment(deptId));
     }
 
     /**
