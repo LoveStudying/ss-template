@@ -228,7 +228,9 @@
           </el-col>
           <el-col :span="24">
             <el-form-item>
-              <span class="dept-binding-hint">类型与业务 ID 需同时填写或同时留空；留空表示不绑定组织来源。</span>
+              <span class="dept-binding-hint">
+                类型与业务 ID 需同时填写；新增时留空表示不绑定组织来源，已绑定的部门留空表示保持原绑定。
+              </span>
             </el-form-item>
           </el-col>
           <el-col v-if="sourceSnapshot?.deptType && sourceSnapshot.businessId" :span="24">
@@ -282,7 +284,9 @@
           {{ syncResult.statusSkippedCount }}。
         </p>
         <p v-if="syncResult.warningCount">
-          共 {{ syncResult.warningCount }} 条提示{{ syncResult.warningsTruncated ? '，仅展示前 20 条' : '' }}。
+          共 {{ syncResult.warningCount }} 条提示{{
+            syncResult.warningsTruncated ? `，仅展示前 ${syncResult.warnings.length} 条` : ''
+          }}。
         </p>
         <el-table v-if="syncResult.warningCount" :data="syncResult.warnings" border>
           <el-table-column prop="businessId" label="业务 ID" width="120" />
@@ -290,7 +294,7 @@
             <template #default="scope">{{ warningName(scope.row.reason) }}</template>
           </el-table-column>
           <el-table-column label="本地状态" width="100">
-            <template #default="scope">{{ scope.row.localStatus === '0' ? '正常' : '停用' }}</template>
+            <template #default="scope">{{ localStatusName(scope.row.localStatus) }}</template>
           </el-table-column>
           <el-table-column label="来源状态" width="110">
             <template #default="scope">{{ sourceStatusName(scope.row.hrmCanceled) }}</template>
@@ -404,6 +408,8 @@ const sourceSnapshot = ref<DeptVO>();
 const typeName = (type?: DeptType | null) => DEPT_TYPE_OPTIONS.find(item => item.value === type)?.label ?? '未配置';
 const sourceStatusName = (value?: string | null) =>
   value === '1' ? '停用' : value === '0' || value === '' ? '正常' : '未配置';
+/** 本地部门状态：'0' 正常，'1' 停用，缺失时显示未配置 */
+const localStatusName = (value?: string | null) => (value === '0' ? '正常' : value === '1' ? '停用' : '未配置');
 
 const syncResult = ref<DeptSyncResult>();
 const {
