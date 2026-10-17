@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/** 泛微人力资源只读查询入口。 */
+/** 泛微人力资源只读查询入口，未配置组织信息来源时按默认的 hrm 注册。 */
 @Validated
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/hrm")
-@ConditionalOnProperty(prefix = "org-sync", name = "source", havingValue = "hrm")
+@ConditionalOnProperty(prefix = "org-sync", name = "source", havingValue = "hrm", matchIfMissing = true)
 public class HrmQueryController extends BaseController {
 
     private final HrmQueryService queryService;

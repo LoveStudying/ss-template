@@ -1,6 +1,5 @@
 package org.dromara.common.hrm.client;
 
-import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.dromara.common.hrm.config.HrmProperties;
 import org.dromara.common.hrm.domain.HrmQueryResult;
@@ -442,8 +441,7 @@ public class HrmClient implements AutoCloseable {
         return elements;
     }
 
-    /** 应用关闭时取消在途只读请求并释放 HTTP 客户端资源。 */
-    @PreDestroy
+    /** 应用关闭时取消在途只读请求并释放 HTTP 客户端资源，由容器按 Bean 定义的 destroyMethod 调用。 */
     @Override
     public void close() {
         httpClient.shutdownNow();

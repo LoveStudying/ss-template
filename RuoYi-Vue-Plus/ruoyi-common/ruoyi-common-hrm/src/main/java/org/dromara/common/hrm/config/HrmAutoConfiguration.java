@@ -12,11 +12,11 @@ import org.springframework.context.annotation.Import;
 /**
  * 泛微人力资源只读客户端自动装配。
  * <p>
- * 仅在组织信息来源为 {@code hrm} 时装配；{@code org-sync.source=none} 时不注册本模块的任何 Bean，
- * 也不要求任何 {@code hrm.*} 配置。
+ * 仅在组织信息来源为 {@code hrm} 时装配，未配置来源时按默认的 {@code hrm} 处理；
+ * {@code org-sync.source=none} 时不注册本模块的任何 Bean，也不要求任何 {@code hrm.*} 配置。
  */
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "org-sync", name = "source", havingValue = "hrm")
+@ConditionalOnProperty(prefix = "org-sync", name = "source", havingValue = "hrm", matchIfMissing = true)
 @EnableConfigurationProperties(HrmProperties.class)
 @Import(HrmQueryController.class)
 public class HrmAutoConfiguration {

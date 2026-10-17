@@ -61,6 +61,32 @@ class HrmAutoConfigurationTest {
     }
 
     /**
+     * 完全未配置 org-sync.source 时按默认的 hrm 处理，客户端和控制器都要注册。
+     */
+    @Test
+    void registersClientAndControllerWhenSourceIsMissing() {
+        runner.withPropertyValues("hrm.endpoint=http://127.0.0.1:1/services/HrmService")
+            .run(ctx -> {
+                assertThat(ctx).hasNotFailed();
+                assertThat(ctx).hasSingleBean(HrmClient.class);
+                assertThat(ctx).hasSingleBean(HrmQueryController.class);
+            });
+    }
+
+    /**
+     * 组件扫描同样把缺失的配置当作默认 hrm，不产生缺依赖的启动失败。
+     */
+    @Test
+    void componentScanRegistersControllerWhenSourceIsMissing() {
+        runner.withUserConfiguration(ControllerScanConfiguration.class)
+            .withPropertyValues("hrm.endpoint=http://127.0.0.1:1/services/HrmService")
+            .run(ctx -> {
+                assertThat(ctx).hasNotFailed();
+                assertThat(ctx).hasSingleBean(HrmQueryController.class);
+            });
+    }
+
+    /**
      * 组件扫描同样受来源条件约束：来源为 none 时不注册控制器，避免缺少查询服务导致启动失败。
      */
     @Test
