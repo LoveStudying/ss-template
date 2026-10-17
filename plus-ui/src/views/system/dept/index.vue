@@ -33,6 +33,20 @@
               <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
             </el-select>
           </el-form-item>
+          <el-form-item label="类型" prop="deptType">
+            <el-select v-model="queryParams.deptType" placeholder="部门类型" clearable>
+              <el-option v-for="item in DEPT_TYPE_OPTIONS" :key="item.value" :label="item.label" :value="item.value" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="业务 ID" prop="businessId">
+            <el-input
+              v-model="queryParams.businessId"
+              placeholder="请输入业务 ID"
+              clearable
+              maxlength="64"
+              @keyup.enter="handleQuery"
+            />
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
             <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -70,8 +84,23 @@
         :default-expand-all="isExpandAll"
       >
         <el-table-column prop="deptName" label="部门名称" width="260"></el-table-column>
-        <el-table-column prop="deptCategory" align="center" label="类别编码" width="200"></el-table-column>
-        <el-table-column prop="orderNum" align="center" label="排序" width="200"></el-table-column>
+        <el-table-column label="类型" align="center" width="100">
+          <template #default="scope">{{ typeName(scope.row.deptType) }}</template>
+        </el-table-column>
+        <el-table-column label="业务 ID" align="center" width="130">
+          <template #default="scope">{{ scope.row.businessId || '未配置' }}</template>
+        </el-table-column>
+        <el-table-column label="所属分部" align="center" width="130">
+          <template #default="scope">{{ scope.row.hrmSubcompanyId || '未配置' }}</template>
+        </el-table-column>
+        <el-table-column label="来源状态" align="center" width="100">
+          <template #default="scope">{{ sourceStatusName(scope.row.hrmCanceled) }}</template>
+        </el-table-column>
+        <el-table-column label="最近同步时间" align="center" width="180">
+          <template #default="scope">{{ scope.row.lastSyncTime || '未同步' }}</template>
+        </el-table-column>
+        <el-table-column prop="deptCategory" align="center" label="类别编码" width="160"></el-table-column>
+        <el-table-column prop="orderNum" align="center" label="排序" width="100"></el-table-column>
         <el-table-column prop="status" align="center" label="状态" width="100">
           <template #default="scope">
             <dict-tag :options="sys_normal_disable" :value="scope.row.status" />
@@ -82,7 +111,7 @@
             <span>{{ parseTime(scope.row.createTime) }}</span>
           </template>
         </el-table-column>
-        <el-table-column fixed="right" align="center" label="操作">
+        <el-table-column fixed="right" align="center" label="操作" width="200">
           <template #default="scope">
             <el-tooltip content="修改" placement="top">
               <el-button
@@ -100,6 +129,18 @@
                 type="primary"
                 icon="Plus"
                 @click="handleAdd(scope.row)"
+              />
+            </el-tooltip>
+            <el-tooltip content="同步子部门：从组织来源同步全部层级子部门" placement="top">
+              <el-button
+                v-hasPermi="['system:dept:sync']"
+                link
+                type="primary"
+                icon="Refresh"
+                aria-label="同步子部门"
+                :disabled="isSyncing && syncingDeptId !== scope.row.deptId"
+                :loading="syncingDeptId === scope.row.deptId"
+                @click="handleSyncChildren(scope.row)"
               />
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
@@ -169,12 +210,52 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item label="类型" prop="deptType">
+              <el-select v-model="form.deptType" placeholder="选择部门类型" clearable>
+                <el-option
+                  v-for="item in DEPT_TYPE_OPTIONS"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="业务 ID" prop="businessId">
+              <el-input v-model="form.businessId" placeholder="组织来源业务 ID" maxlength="64" clearable />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item>
+              <span class="dept-binding-hint">类型与业务 ID 需同时填写或同时留空；留空表示不绑定组织来源。</span>
+            </el-form-item>
+          </el-col>
+          <el-col v-if="sourceSnapshot?.deptType && sourceSnapshot.businessId" :span="24">
+            <el-form-item label="所属分部">
+              <span>{{ sourceSnapshot.hrmSubcompanyId || '未配置' }}</span>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
             <el-form-item label="部门状态">
               <el-radio-group v-model="form.status">
                 <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">
                   {{ dict.label }}
                 </el-radio>
               </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col v-if="sourceSnapshot?.deptType && sourceSnapshot.businessId" :span="24">
+            <el-form-item label="来源信息">
+              <span>
+                来源状态：{{ sourceStatusName(sourceSnapshot.hrmCanceled) }}；上级 ID：{{
+                  sourceSnapshot.hrmSupdepartmentId || sourceSnapshot.hrmSupsubcompanyId || '未配置'
+                }}
+                <br />
+                上游变更：{{ sourceSnapshot.hrmLastChangeTime || '无' }}；最近同步：{{
+                  sourceSnapshot.lastSyncTime || '未同步'
+                }}
+              </span>
             </el-form-item>
           </el-col>
         </el-row>
@@ -186,12 +267,55 @@
         </div>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="syncResultDialog.visible" :title="syncResultDialog.title" width="780px" append-to-body>
+      <template v-if="syncResult">
+        <el-alert
+          :type="syncResult.warningCount ? 'warning' : 'success'"
+          :closable="false"
+          :title="syncResult.warningCount ? '同步已提交，请查看状态保护及缓存提示' : '同步已完成'"
+        />
+        <p>
+          拉取 {{ syncResult.fetchedCount }}，参与同步
+          {{ syncResult.selectedCount }}（已排除来源中停用的部门及其子部门）；新增 {{ syncResult.createdCount }}，更新
+          {{ syncResult.updatedCount }}，未变化 {{ syncResult.unchangedCount }}；状态保护
+          {{ syncResult.statusSkippedCount }}。
+        </p>
+        <p v-if="syncResult.warningCount">
+          共 {{ syncResult.warningCount }} 条提示{{ syncResult.warningsTruncated ? '，仅展示前 20 条' : '' }}。
+        </p>
+        <el-table v-if="syncResult.warningCount" :data="syncResult.warnings" border>
+          <el-table-column prop="businessId" label="业务 ID" width="120" />
+          <el-table-column label="原因">
+            <template #default="scope">{{ warningName(scope.row.reason) }}</template>
+          </el-table-column>
+          <el-table-column label="本地状态" width="100">
+            <template #default="scope">{{ scope.row.localStatus === '0' ? '正常' : '停用' }}</template>
+          </el-table-column>
+          <el-table-column label="来源状态" width="110">
+            <template #default="scope">{{ sourceStatusName(scope.row.hrmCanceled) }}</template>
+          </el-table-column>
+        </el-table>
+      </template>
+      <template #footer>
+        <el-button type="primary" @click="closeSyncResult">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup name="Dept" lang="ts">
-import { listDept, getDept, delDept, addDept, updateDept, listDeptExcludeChild } from '@/api/system/dept';
-import { DeptForm, DeptQuery, DeptVO } from '@/api/system/dept/types';
+import type { DeptForm, DeptQuery, DeptSyncResult, DeptSyncWarning, DeptType, DeptVO } from '@/api/system/dept/types';
+import {
+  listDept,
+  getDept,
+  delDept,
+  addDept,
+  updateDept,
+  listDeptExcludeChild,
+  syncDeptChildren
+} from '@/api/system/dept';
+import { DEPT_TYPE_OPTIONS } from '@/api/system/dept/types';
 import { listUserByDeptId } from '@/api/system/user';
 import { UserVO } from '@/api/system/user/types';
 import { useLoading } from '@/hooks/async/useLoading';
@@ -202,6 +326,7 @@ import { useTreeTableExpand } from '@/hooks/tree/useTreeTableExpand';
 import modal from '@/plugins/modal';
 import { useDict } from '@/utils/dict';
 import { handleTree, parseTime } from '@/utils/ruoyi';
+import { useDeptSync } from './useDeptSync';
 
 interface DeptOptionsType {
   deptId: number | string;
@@ -234,7 +359,9 @@ const initFormData: DeptForm = {
   leader: undefined,
   phone: undefined,
   email: undefined,
-  status: '0'
+  status: '0',
+  deptType: undefined,
+  businessId: undefined
 };
 const initData: PageData<DeptForm, DeptQuery> = {
   form: { ...initFormData },
@@ -243,7 +370,9 @@ const initData: PageData<DeptForm, DeptQuery> = {
     pageSize: 10,
     deptName: undefined,
     deptCategory: undefined,
-    status: undefined
+    status: undefined,
+    deptType: undefined,
+    businessId: undefined
   },
   rules: {
     parentId: [{ required: true, message: '上级部门不能为空', trigger: 'blur' }],
@@ -269,6 +398,43 @@ const data = reactive<PageData<DeptForm, DeptQuery>>(initData);
 
 const { queryParams, form, rules } = toRefs<PageData<DeptForm, DeptQuery>>(data);
 const { dialog, openDialog, closeDialog, setTitle } = useDialogState();
+
+/** 编辑时展示的组织来源快照，只读，不回传后端 */
+const sourceSnapshot = ref<DeptVO>();
+const typeName = (type?: DeptType | null) => DEPT_TYPE_OPTIONS.find(item => item.value === type)?.label ?? '未配置';
+const sourceStatusName = (value?: string | null) =>
+  value === '1' ? '停用' : value === '0' || value === '' ? '正常' : '未配置';
+
+const syncResult = ref<DeptSyncResult>();
+const {
+  dialog: syncResultDialog,
+  openDialog: openSyncResult,
+  closeDialog: closeSyncResult
+} = useDialogState('子部门同步结果');
+const warningNames: Record<DeptSyncWarning['reason'], string> = {
+  HAS_USERS: '有关联用户，保留本地状态',
+  ACTIVE_DESCENDANT: '有正常后代，暂缓停用',
+  CACHE_REFRESH_FAILED: '数据已提交，缓存刷新异常'
+};
+const warningName = (reason: DeptSyncWarning['reason']) => warningNames[reason] ?? reason;
+const { isSyncing, syncingDeptId, syncChildren } = useDeptSync({
+  sync: syncDeptChildren,
+  confirm: row =>
+    modal.confirm(
+      `将从组织来源同步“${row.deptName}”的全部层级子部门；来源中已停用的部门及其子部门将跳过，有关联用户的部门保留本地状态。是否继续？`
+    ),
+  reload: () => getList(),
+  notifyResult: result => {
+    syncResult.value = result;
+    openSyncResult();
+  },
+  notifyError: message => modal.msgWarning(message)
+});
+const flattenRows = (rows: DeptVO[]): DeptVO[] => rows.flatMap(row => [row, ...flattenRows(row.children ?? [])]);
+const handleSyncChildren = async (row: Partial<DeptVO>) => {
+  const target = flattenRows(deptList.value).find(item => item.deptId === row.deptId);
+  if (target) await syncChildren(target);
+};
 
 /** 查询菜单列表 */
 const getList = async () => {
@@ -297,6 +463,7 @@ const cancel = () => {
 /** 表单重置 */
 const reset = () => {
   form.value = { ...initFormData };
+  sourceSnapshot.value = undefined;
   deptFormRef.value?.resetFields();
 };
 
@@ -333,7 +500,22 @@ const handleUpdate = async (row: Partial<DeptVO>) => {
   //查询当前部门所有用户
   getDeptAllUser(row.deptId);
   const res = await getDept(row.deptId);
-  form.value = res.data;
+  const detail = res.data;
+  sourceSnapshot.value = detail;
+  // 只取可编辑字段；来源快照字段仅展示，不随表单回传
+  form.value = {
+    deptId: detail.deptId,
+    parentId: detail.parentId,
+    deptName: detail.deptName,
+    deptCategory: detail.deptCategory,
+    orderNum: detail.orderNum,
+    leader: detail.leader,
+    phone: detail.phone,
+    email: detail.email,
+    status: detail.status,
+    deptType: detail.deptType ?? undefined,
+    businessId: detail.businessId ?? undefined
+  };
   const response = await listDeptExcludeChild(row.deptId);
   const data = handleTree<DeptOptionsType>(response.data, 'deptId');
   if (data) {
@@ -378,4 +560,10 @@ onMounted(() => {
 @use '@/assets/styles/components/page-shell' as pageShell;
 
 @include pageShell.table-crud-page;
+
+.dept-binding-hint {
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
 </style>

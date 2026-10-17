@@ -1,6 +1,6 @@
 import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
-import { type DeptForm, type DeptQuery, type DeptVO } from './types';
+import { type DeptForm, type DeptQuery, type DeptSyncResult, type DeptVO } from './types';
 
 // 查询部门列表
 export const listDept = (query?: DeptQuery) => {
@@ -8,6 +8,15 @@ export const listDept = (query?: DeptQuery) => {
     url: '/system/dept/list',
     method: 'get',
     params: query
+  });
+};
+
+/** 同步全部层级子部门，范围由服务端持久化绑定决定 */
+export const syncDeptChildren = (deptId: string | number): AxiosPromise<DeptSyncResult> => {
+  return request({
+    url: `/system/dept/${deptId}/sync-children`,
+    method: 'post',
+    timeout: 90000
   });
 };
 
