@@ -152,6 +152,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 泛微人力资源只读接口客户端 -->
+            <dependency>
+                <groupId>org.dromara</groupId>
+                <artifactId>ruoyi-common-hrm</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
