@@ -6,7 +6,8 @@
 
 模块位于 `RuoYi-Vue-Plus/ruoyi-common/ruoyi-common-hrm`，只提供协议客户端、查询服务和联调控制器；`ruoyi-system` 中的 `HrmOrgSyncSource` 负责把查询结果转换为组织同步的中性模型。
 
-- 仅当 `org-sync.source=hrm` 时，自动配置才会注册 `HrmProperties`、`HrmClient`、`HrmQueryService` 和 `HrmQueryController`；`org-sync.source=none` 时不加载本模块的任何 Bean，也不要求任何 `hrm.*` 配置。
+- 仅当 `org-sync.source=hrm` 时，自动配置才会注册 `HrmProperties`、`HrmClient`、`HrmQueryService` 和 `HrmQueryController`；`org-sync.source=none` 时不加载本模块的任何 Bean，也不要求任何 `hrm.*` 配置。该配置项在启动模块的 `application.yml` 中声明。
+- `HrmQueryController` 本身也带有相同的 `@ConditionalOnProperty`。启动类扫描 `org.dromara` 包时，组件扫描会按该条件跳过控制器，因此 `none` 模式下即使模块在类路径上，也不会出现缺少 `HrmQueryService` 的启动失败，`/hrm/*` 同样不存在。
 - 创建 `HrmClient` 和启动应用均不会主动访问 OA；只有实际调用四个查询方法才会发起请求。
 - 本模块不自动创建用户、同步角色或写入数据库，也不提供定时任务。
 

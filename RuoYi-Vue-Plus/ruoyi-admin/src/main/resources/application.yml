@@ -38,6 +38,10 @@ auth:
   # system：当前登录页；sso：自动跳转三生 SSO
   login-mode: system
 
+# 组织信息来源：hrm 泛微 OA 人力资源；none 不启用组织同步
+org-sync:
+  source: hrm
+
 # 用户配置
 user:
   password:

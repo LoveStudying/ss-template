@@ -8,6 +8,7 @@ import org.dromara.common.hrm.client.HrmClientException;
 import org.dromara.common.hrm.domain.HrmUserQuery;
 import org.dromara.common.hrm.domain.vo.HrmQueryVo;
 import org.dromara.common.hrm.service.HrmQueryService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/hrm")
+@ConditionalOnProperty(prefix = "org-sync", name = "source", havingValue = "hrm")
 public class HrmQueryController extends BaseController {
 
     private final HrmQueryService queryService;
