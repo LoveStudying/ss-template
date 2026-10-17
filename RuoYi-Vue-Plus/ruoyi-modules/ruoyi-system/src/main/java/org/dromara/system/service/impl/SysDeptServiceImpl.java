@@ -305,6 +305,17 @@ public class SysDeptServiceImpl implements ISysDeptService, DeptService {
     }
 
     /**
+     * 构造只含一个主键的查询集合，主键为空时返回空集合，避免 List.of(null) 抛 NPE，
+     * 让缺失主键继续由业务校验给出「部门不存在」类提示。
+     *
+     * @param id 部门主键，可为 null
+     * @return 单元素集合或空集合
+     */
+    private static List<Long> idOrEmpty(Long id) {
+        return id == null ? List.of() : List.of(id);
+    }
+
+    /**
      * 新增保存部门信息
      *
      * @param bo 部门信息
@@ -314,7 +325,7 @@ public class SysDeptServiceImpl implements ISysDeptService, DeptService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int insertDept(SysDeptBo bo) {
-        List<SysDept> parents = deptMapper.lockSourceDepartmentRows(List.of(bo.getParentId()));
+        List<SysDept> parents = deptMapper.lockSourceDepartmentRows(idOrEmpty(bo.getParentId()));
         SysDept info = parents.isEmpty() || !"0".equals(parents.getFirst().getDelFlag()) ? null : parents.getFirst();
         // 如果父节点不存在或不为正常状态,则不允许新增子节点
         if (ObjectUtil.isNull(info)) {
@@ -345,7 +356,7 @@ public class SysDeptServiceImpl implements ISysDeptService, DeptService {
     public int updateDept(SysDeptBo bo) {
         SysDept dept = MapstructUtils.convert(bo, SysDept.class);
         // 普通编辑也先取得当前记录锁，防止等待同步提交后用陈旧快照覆盖绑定与树关系。
-        List<SysDept> locked = deptMapper.lockSourceDepartmentRows(List.of(dept.getDeptId()));
+        List<SysDept> locked = deptMapper.lockSourceDepartmentRows(idOrEmpty(dept.getDeptId()));
         SysDept oldDept = locked.isEmpty() || !"0".equals(locked.getFirst().getDelFlag()) ? null : locked.getFirst();
         if (ObjectUtil.isNull(oldDept)) {
             throw new ServiceException("部门不存在，无法修改");
