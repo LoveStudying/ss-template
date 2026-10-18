@@ -25,7 +25,7 @@
 | `ruoyi-extend/ruoyi-snailjob-server` | SnailJob 调度中心 |
 | `script/sql` | MySQL、Oracle、PostgreSQL、SQL Server 初始化脚本 |
 | `script/docker` | 数据库、Redis、MinIO、Nginx、两应用实例及 SnailJob 的部署示例 |
-| `../plus-ui` | Vue 3 管理后台 |
+| `../frontend` | Vue 3 管理后台 |
 
 ## 本地开发
 
@@ -45,7 +45,7 @@
 java -jar ruoyi-admin/target/ruoyi-admin.jar --spring.profiles.active=dev
 ```
 
-前端在 `../plus-ui` 使用 `pnpm@10.34.5`，Node 版本以其 `package.json` 为准：
+前端在 `../frontend` 使用 `pnpm@10.34.5`，Node 版本以其 `package.json` 为准：
 
 ```powershell
 pnpm install --frozen-lockfile

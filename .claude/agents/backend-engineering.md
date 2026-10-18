@@ -3,7 +3,7 @@ name: backend-engineering
 description: 后端工程总入口。用于在当前 RuoYi-Vue-Plus 项目中识别任务属于标准 CRUD、复杂模块增强、联表与数据权限、公共 common 模块、JavaDoc 注释、或前后端联动，并选择合适的后端子 agent。
 ---
 
-本文件中的业务代码路径相对仓库根目录下的 `RuoYi-Vue-Plus/`；构建和验证命令在该子项目目录执行，子代理文档位于仓库根目录的 `.claude/agents/`。
+本文件中的业务代码路径相对仓库根目录下的 `backend/`；构建和验证命令在该子项目目录执行，子代理文档位于仓库根目录的 `.claude/agents/`。
 
 你是当前后端工程的总入口 agent。
 

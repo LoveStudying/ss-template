@@ -15,11 +15,11 @@
 
 | 目录 | 职责 | 当前技术栈 |
 | --- | --- | --- |
-| `RuoYi-Vue-Plus/` | 后端 Maven 多模块工程 | JDK 21、Spring Boot 4.1.1、MyBatis-Plus、Sa-Token、Redis/Redisson，当前默认数据库驱动为 MySQL |
-| `plus-ui/` | 管理后台前端 | Vue 3、TypeScript、Vite、Element Plus、Pinia、Vue Router、pnpm |
+| `backend/` | 后端 Maven 多模块工程 | JDK 21、Spring Boot 4.1.1、MyBatis-Plus、Sa-Token、Redis/Redisson，当前默认数据库驱动为 MySQL |
+| `frontend/` | 管理后台前端 | Vue 3、TypeScript、Vite、Element Plus、Pinia、Vue Router、pnpm |
 
-- 后端版本以 [pom.xml](RuoYi-Vue-Plus/pom.xml) 为准；使用 Maven Wrapper，版本以 [.mvn/wrapper/maven-wrapper.properties](RuoYi-Vue-Plus/.mvn/wrapper/maven-wrapper.properties) 为准。
-- 前端版本和脚本以 [package.json](plus-ui/package.json) 为准，锁文件为 `pnpm-lock.yaml`。当前指定 `pnpm@10.34.5`，Node 要求以 `engines` 和实际依赖要求为准。
+- 后端版本以 [pom.xml](backend/pom.xml) 为准；使用 Maven Wrapper，版本以 [.mvn/wrapper/maven-wrapper.properties](backend/.mvn/wrapper/maven-wrapper.properties) 为准。
+- 前端版本和脚本以 [package.json](frontend/package.json) 为准，锁文件为 `pnpm-lock.yaml`。当前指定 `pnpm@10.34.5`，Node 要求以 `engines` 和实际依赖要求为准。
 - 不凭框架名称猜版本，不擅自升级主版本、替换包管理器或改写无关锁文件。
 
 ## 目录导航
@@ -28,11 +28,11 @@
 
 - `.claude/agents/`：前后端 Claude Code 子代理定义，统一放在仓库根目录。
 - `.agents/skills/`：Codex 项目技能，包含 `ruoyi-plus-ai-coding` 和 `frontend-crud-coding`，随技能保留 `references/` 与 `agents/openai.yaml`。
-- 从仓库根目录启动 AI 会话；文档中的后端业务路径相对 `RuoYi-Vue-Plus/`，前端业务路径相对 `plus-ui/`，构建和验证仍在对应子项目目录执行。
+- 从仓库根目录启动 AI 会话；文档中的后端业务路径相对 `backend/`，前端业务路径相对 `frontend/`，构建和验证仍在对应子项目目录执行。
 
 ### 后端
 
-| 路径（相对 `RuoYi-Vue-Plus/`） | 用途 |
+| 路径（相对 `backend/`） | 用途 |
 | --- | --- |
 | `ruoyi-admin/` | 应用入口、认证控制器、登录策略、验证码；启动类 `org.dromara.DromaraApplication` |
 | `ruoyi-api/` | 模块间共享接口、登录模型、DTO；不是另一个独立 HTTP 服务 |
@@ -48,7 +48,7 @@
 
 ### 前端
 
-| 路径（相对 `plus-ui/`） | 用途 |
+| 路径（相对 `frontend/`） | 用途 |
 | --- | --- |
 | `src/views/` | 页面，含 system、monitor、tool 等目录 |
 | `src/api/` | 后端 API 与业务 `types.ts` |
@@ -112,7 +112,7 @@
 
 以下命令为 PowerShell 示例，均须在对应子项目目录执行。具体配置变更后重新核对，不把列出的命令视为已通过验证。
 
-### 后端：在 `RuoYi-Vue-Plus/` 执行
+### 后端：在 `backend/` 执行
 
 ```powershell
 java -version
@@ -134,14 +134,14 @@ java -jar ruoyi-admin/target/ruoyi-admin.jar --spring.profiles.active=dev
 
 - 项目编译目标为 JDK 21；Wrapper 使用 `JAVA_HOME` 指向的 JDK。每次运行前以 Wrapper 的版本输出确认实际 Java；终端 `java` 的 PATH 版本可能不同，不通过降低编译版本绕过。
 - 环境配置位于 `ruoyi-admin/src/main/resources/application*.yml`；当前 POM 默认 dev，并通过 Maven 过滤 `@profiles.active@`。不要假定已实现纯运行时环境管理。
-- 三生 SSO 配置位于 `justauth.type.sso`：dev 对应测试地址，prod 对应正式地址；客户端凭据、回调地址和授权范围需要填写。接入及联调约束见 [三生 SSO 接入说明](RuoYi-Vue-Plus/docs/三生SSO接入说明.md)。
-- 组织信息来源由 `application.yml` 的 `org-sync.source` 配置（`hrm`/`none`，其他值启动失败）；HRM 地址见 dev/prod 配置的 `hrm.endpoint`，`hrm.client-ip` 必须在对应配置文件中填写经接口方加入 OA 白名单的地址才能实际调用。外网无法联调，见 [组织信息来源接入说明](RuoYi-Vue-Plus/docs/组织信息来源接入说明.md)。
+- 三生 SSO 配置位于 `justauth.type.sso`：dev 对应测试地址，prod 对应正式地址；客户端凭据、回调地址和授权范围需要填写。接入及联调约束见 [三生 SSO 接入说明](backend/docs/三生SSO接入说明.md)。
+- 组织信息来源由 `application.yml` 的 `org-sync.source` 配置（`hrm`/`none`，其他值启动失败）；HRM 地址见 dev/prod 配置的 `hrm.endpoint`，`hrm.client-ip` 必须在对应配置文件中填写经接口方加入 OA 白名单的地址才能实际调用。外网无法联调，见 [组织信息来源接入说明](backend/docs/组织信息来源接入说明.md)。
 - 默认登录入口直接在 `application.yml` 的 `auth.login-mode` 中配置，默认 `system`：`system` 显示系统登录页，`sso` 自动跳转三生 SSO；`/login?local=true` 始终保留本地登录。该配置只选择入口，不禁用本地认证接口。
 - 使用已有 Spring Test、JUnit Jupiter、Mockito。测试主要在 common 模块，另有系统消息、组织信息同步（mock 来源，未连真实 OA 和数据库）和 SnailJob 监控鉴权回归测试；不能据此推断登录和所有系统业务已覆盖。
 - POM 当前 `maven.test.skip=false`，Surefire 排除 `exclude` 标签。不得通过跳过测试或降低断言处理失败。
 - 未确认仓库有统一 Java lint/格式化命令，不凭经验新增插件；只改文档不必启动服务或跑全量构建。
 
-### 前端：在 `plus-ui/` 执行
+### 前端：在 `frontend/` 执行
 
 ```powershell
 # 仅在首次准备环境或依赖缺失时安装；保持锁文件

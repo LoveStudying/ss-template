@@ -4,7 +4,7 @@
 
 ## 加载条件
 
-模块位于 `RuoYi-Vue-Plus/ruoyi-common/ruoyi-common-hrm`，只提供协议客户端、查询服务和联调控制器；`ruoyi-system` 中的 `HrmOrgSyncSource` 负责把查询结果转换为组织同步的中性模型。
+模块位于 `backend/ruoyi-common/ruoyi-common-hrm`，只提供协议客户端、查询服务和联调控制器；`ruoyi-system` 中的 `HrmOrgSyncSource` 负责把查询结果转换为组织同步的中性模型。
 
 - 仅当 `org-sync.source` 为 `hrm` 或未配置时，自动配置才会注册 `HrmProperties`、`HrmClient`、`HrmQueryService` 和 `HrmQueryController`；`org-sync.source=none` 时不加载本模块的任何 Bean，也不要求任何 `hrm.*` 配置。该配置项在启动模块的 `application.yml` 中声明。
 - 未配置 `org-sync.source` 时按默认的 `hrm` 处理（条件带 `matchIfMissing=true`），与配置对象 `OrgSyncProperties.source` 的默认值保持一致，避免两处对「默认值」理解不同。
@@ -36,7 +36,7 @@ hrm:
 
 1. 配置 `hrm.client-ip` 为已获 OA 白名单许可的 IPv4（直接填写到对应环境配置文件），按仓库根目录 `AGENTS.md` 启动后端。默认本地地址为 `http://localhost:8080`。启动不会主动访问 OA。
 2. 使用后台管理端正常登录，从登录响应取得 `data.access_token`。`/auth/login` 要求 `encrypt-key` 加密请求头，不能在 Postman 中直接发送明文密码 JSON；可从已登录的后台管理端取得令牌。不要把令牌存入共享集合或提交仓库。
-3. 在 Postman 为下面四个请求统一设置请求头：`Authorization: Bearer <access_token>`、`clientid: <登录时使用的 clientId>`。本地后台管理端的 `clientId` 取自 `plus-ui/.env.development` 的 `VITE_APP_CLIENT_ID`。令牌绑定客户端 ID；若该客户端配置了访问路径或来源 IP 限制，还需允许 `/hrm/**` 和当前来源 IP。
+3. 在 Postman 为下面四个请求统一设置请求头：`Authorization: Bearer <access_token>`、`clientid: <登录时使用的 clientId>`。本地后台管理端的 `clientId` 取自 `frontend/.env.development` 的 `VITE_APP_CLIENT_ID`。令牌绑定客户端 ID；若该客户端配置了访问路径或来源 IP 限制，还需允许 `/hrm/**` 和当前来源 IP。
 4. 使用有对应 `hrm:*:query` 权限的管理账号。超级管理员拥有通配权限；普通账号需另行授予下表中的权限。本模块不自动修改角色或菜单数据。
 
 | 方法 | 路径 | Query 参数 | 权限 |
@@ -119,7 +119,7 @@ grep -F 'requestId=替换为实际诊断ID' logs/sys-console.log
 
 ## 验证
 
-在 `RuoYi-Vue-Plus/` 下使用项目 Maven Wrapper 和 JDK 21：
+在 `backend/` 下使用项目 Maven Wrapper 和 JDK 21：
 
 ```powershell
 .\mvnw.cmd -pl ruoyi-common/ruoyi-common-hrm -am test

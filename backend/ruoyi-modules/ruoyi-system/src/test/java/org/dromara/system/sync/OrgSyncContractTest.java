@@ -154,7 +154,7 @@ class OrgSyncContractTest {
                 }
             }
         }
-        throw new IllegalStateException("未能从工作目录定位 RuoYi-Vue-Plus/script/sql/ry_vue.sql：" + moduleDir);
+        throw new IllegalStateException("未能从工作目录定位 backend/script/sql/ry_vue.sql：" + moduleDir);
     }
 
     /**

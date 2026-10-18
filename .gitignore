@@ -1,88 +1,88 @@
-# RuoYi-Vue-Plus
+# Backend
 ######################################################################
 # Build Tools
 
-/RuoYi-Vue-Plus/**/.gradle
-/RuoYi-Vue-Plus/build/
-!/RuoYi-Vue-Plus/gradle/wrapper/gradle-wrapper.jar
+/backend/**/.gradle
+/backend/build/
+!/backend/gradle/wrapper/gradle-wrapper.jar
 
-/RuoYi-Vue-Plus/**/target/
-!/RuoYi-Vue-Plus/.mvn/wrapper/maven-wrapper.jar
+/backend/**/target/
+!/backend/.mvn/wrapper/maven-wrapper.jar
 
 ######################################################################
 # IDE
 
 ### STS ###
-/RuoYi-Vue-Plus/**/.apt_generated
-/RuoYi-Vue-Plus/**/.classpath
-/RuoYi-Vue-Plus/**/.factorypath
-/RuoYi-Vue-Plus/**/.project
-/RuoYi-Vue-Plus/**/.settings
-/RuoYi-Vue-Plus/**/.springBeans
+/backend/**/.apt_generated
+/backend/**/.classpath
+/backend/**/.factorypath
+/backend/**/.project
+/backend/**/.settings
+/backend/**/.springBeans
 
 ### IntelliJ IDEA ###
-/RuoYi-Vue-Plus/**/.idea
-/RuoYi-Vue-Plus/**/*.iws
-/RuoYi-Vue-Plus/**/*.iml
-/RuoYi-Vue-Plus/**/*.ipr
+/backend/**/.idea
+/backend/**/*.iws
+/backend/**/*.iml
+/backend/**/*.ipr
 
 ### VS CODE ###
-/RuoYi-Vue-Plus/**/.vscode
+/backend/**/.vscode
 
 ### JRebel ###
-/RuoYi-Vue-Plus/**/rebel.xml
+/backend/**/rebel.xml
 
 ### NetBeans ###
-/RuoYi-Vue-Plus/nbproject/private/
-/RuoYi-Vue-Plus/build/*
-/RuoYi-Vue-Plus/**/nbbuild/
-/RuoYi-Vue-Plus/**/nbdist/
-/RuoYi-Vue-Plus/**/.nb-gradle/
+/backend/nbproject/private/
+/backend/build/*
+/backend/**/nbbuild/
+/backend/**/nbdist/
+/backend/**/.nb-gradle/
 
 ######################################################################
 # Others
-/RuoYi-Vue-Plus/**/*.log
-/RuoYi-Vue-Plus/**/*.log.gz
-/RuoYi-Vue-Plus/**/*.xml.versionsBackup
-/RuoYi-Vue-Plus/**/*.swp
+/backend/**/*.log
+/backend/**/*.log.gz
+/backend/**/*.xml.versionsBackup
+/backend/**/*.swp
 
-!/RuoYi-Vue-Plus/*/build/*.java
-!/RuoYi-Vue-Plus/*/build/*.html
-!/RuoYi-Vue-Plus/*/build/*.xml
+!/backend/*/build/*.java
+!/backend/*/build/*.html
+!/backend/*/build/*.xml
 
-/RuoYi-Vue-Plus/**/.flattened-pom.xml
+/backend/**/.flattened-pom.xml
 
-/RuoYi-Vue-Plus/**/application-local.yml
-/RuoYi-Vue-Plus/**/application-ga.yml
+/backend/**/application-local.yml
+/backend/**/application-ga.yml
 
-# plus-ui
-/plus-ui/**/.DS_Store
-/plus-ui/**/.history
-/plus-ui/**/node_modules/
-/plus-ui/**/dist/
-/plus-ui/**/npm-debug.log*
-/plus-ui/**/yarn-debug.log*
-/plus-ui/**/yarn-error.log*
-/plus-ui/**/*.log
+# Frontend
+/frontend/**/.DS_Store
+/frontend/**/.history
+/frontend/**/node_modules/
+/frontend/**/dist/
+/frontend/**/npm-debug.log*
+/frontend/**/yarn-debug.log*
+/frontend/**/yarn-error.log*
+/frontend/**/*.log
 
-/plus-ui/tests/**/coverage/
-/plus-ui/tests/e2e/reports
-/plus-ui/**/selenium-debug.log
+/frontend/tests/**/coverage/
+/frontend/tests/e2e/reports
+/frontend/**/selenium-debug.log
 
 # Editor directories and files
-/plus-ui/**/.idea
-/plus-ui/**/.vscode
-/plus-ui/**/*.iml
-/plus-ui/**/*.suo
-/plus-ui/**/*.ntvs*
-/plus-ui/**/*.njsproj
-/plus-ui/**/*.sln
-/plus-ui/**/*.local
+/frontend/**/.idea
+/frontend/**/.vscode
+/frontend/**/*.iml
+/frontend/**/*.suo
+/frontend/**/*.ntvs*
+/frontend/**/*.njsproj
+/frontend/**/*.sln
+/frontend/**/*.local
 
-/plus-ui/**/package-lock.json
-/plus-ui/**/yarn.lock
+/frontend/**/package-lock.json
+/frontend/**/yarn.lock
 
 # 编译生成的文件
-/plus-ui/**/auto-imports.d.ts
-/plus-ui/**/components.d.ts
+/frontend/**/auto-imports.d.ts
+/frontend/**/components.d.ts
 

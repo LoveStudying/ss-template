@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $workspace = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
-$backend = Join-Path $workspace 'RuoYi-Vue-Plus'
-$frontend = Join-Path $workspace 'plus-ui'
+$backend = Join-Path $workspace 'backend'
+$frontend = Join-Path $workspace 'frontend'
 $removed = @(
     'ruoyi-demo', 'ruoyi-ai', 'ruoyi-workflow', 'ruoyi-monitor-admin', 'ruoyi-snailai-server',
     'ruoyi-common-ai', 'ruoyi-common-mcp', 'ruoyi-common-liteflow',
