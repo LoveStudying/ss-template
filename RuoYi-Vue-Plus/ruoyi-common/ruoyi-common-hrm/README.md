@@ -15,25 +15,26 @@
 
 ## 配置
 
-| 配置 | 环境变量 | 说明 |
-| --- | --- | --- |
-| `hrm.endpoint` | `HRM_ENDPOINT` | SOAP 服务地址，不包含 `?wsdl`；dev 与 prod 的具体地址由启动模块的 `application-dev.yml`、`application-prod.yml` 配置 |
-| `hrm.client-ip` | `HRM_CLIENT_IP` | 必填，传给 OA 的白名单客户端 IPv4 地址 |
-| `hrm.connect-timeout-seconds` | — | 连接超时，默认 10 秒 |
-| `hrm.read-timeout-seconds` | — | 请求超时，默认 30 秒 |
-| `hrm.log-response-body` | — | 脱敏响应正文日志开关，未配置时为 false，诊断结束后应关闭 |
+| 配置 | 说明 |
+| --- | --- |
+| `hrm.endpoint` | SOAP 服务地址，不包含 `?wsdl`；dev 与 prod 的具体地址由启动模块的 `application-dev.yml`、`application-prod.yml` 配置 |
+| `hrm.client-ip` | 必填，传给 OA 的白名单客户端 IPv4 地址 |
+| `hrm.connect-timeout-seconds` | 连接超时，默认 10 秒 |
+| `hrm.read-timeout-seconds` | 请求超时，默认 30 秒 |
+| `hrm.log-response-body` | 脱敏响应正文日志开关，未配置时为 false，诊断结束后应关闭 |
 
-在 PowerShell 中为当前启动进程设置：
+直接在启动模块对应的 `application-dev.yml` 或 `application-prod.yml` 中填写：
 
-```powershell
-$env:HRM_CLIENT_IP = '<白名单IPv4>'
+```yaml
+hrm:
+  client-ip: '<白名单IPv4>'
 ```
 
 `<白名单IPv4>` 必须是已由接口方加入 OA 白名单的当前机器地址，部署服务器与开发电脑的取值不同。IPv4 配置不自动选择，避免误用 VPN 或虚拟网卡地址。
 
 ## Postman 调用
 
-1. 配置 `hrm.client-ip` 为已获 OA 白名单许可的 IPv4（需要时可通过 `HRM_CLIENT_IP` 环境变量注入配置），按仓库根目录 `AGENTS.md` 启动后端。默认本地地址为 `http://localhost:8080`。启动不会主动访问 OA。
+1. 配置 `hrm.client-ip` 为已获 OA 白名单许可的 IPv4（直接填写到对应环境配置文件），按仓库根目录 `AGENTS.md` 启动后端。默认本地地址为 `http://localhost:8080`。启动不会主动访问 OA。
 2. 使用后台管理端正常登录，从登录响应取得 `data.access_token`。`/auth/login` 要求 `encrypt-key` 加密请求头，不能在 Postman 中直接发送明文密码 JSON；可从已登录的后台管理端取得令牌。不要把令牌存入共享集合或提交仓库。
 3. 在 Postman 为下面四个请求统一设置请求头：`Authorization: Bearer <access_token>`、`clientid: <登录时使用的 clientId>`。本地后台管理端的 `clientId` 取自 `plus-ui/.env.development` 的 `VITE_APP_CLIENT_ID`。令牌绑定客户端 ID；若该客户端配置了访问路径或来源 IP 限制，还需允许 `/hrm/**` 和当前来源 IP。
 4. 使用有对应 `hrm:*:query` 权限的管理账号。超级管理员拥有通配权限；普通账号需另行授予下表中的权限。本模块不自动修改角色或菜单数据。
@@ -129,13 +130,13 @@ grep -F 'requestId=替换为实际诊断ID' logs/sys-console.log
 手动调用真实 OA 的四个只读方法：
 
 ```powershell
-$env:HRM_CLIENT_IP = '<白名单IPv4>'
+# 先在 application-dev.yml 中填写 hrm.client-ip。
 # 获得可用测试人员后设置；默认使用不存在的测试编码，避免全量人员查询。
 $env:HRM_TEST_WORKCODE = '接口方提供的测试员工编码'
 .\mvnw.cmd -pl ruoyi-common/ruoyi-common-hrm -am test '-Dtest=HrmLiveTest' '-Dhrm.live=true' '-Dsurefire.failIfNoSpecifiedTests=false'
 ```
 
-可通过 `HRM_ENDPOINT` 指定 OA 地址，通过 `HRM_TEST_SUBCOMPANY_ID`、`HRM_TEST_DEPARTMENT_ID` 缩小部门、岗位及人员范围。联调测试只输出返回数量和字段名称，不输出人员值。若返回 null，测试会明确失败，防止把 HTTP 200 误报成数据联调成功。
+联调测试默认直接读取 `ruoyi-admin/src/main/resources/application-dev.yml` 的 `hrm.*`；可用 `-Dhrm.live.config=<配置文件路径>` 指定其他 YAML 文件（相对路径基于 HRM 模块目录）。通过 `HRM_TEST_SUBCOMPANY_ID`、`HRM_TEST_DEPARTMENT_ID` 缩小部门、岗位及人员范围。联调测试只输出返回数量和字段名称，不输出人员值。若返回 null，测试会明确失败，防止把 HTTP 200 误报成数据联调成功。
 
 ## 协议依据与限制
 

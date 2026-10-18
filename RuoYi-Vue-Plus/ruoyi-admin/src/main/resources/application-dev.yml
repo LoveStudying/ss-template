@@ -194,9 +194,9 @@ justauth:
 
 --- # 泛微人力资源只读接口，仅在显式调用客户端时访问 OA
 hrm:
-  endpoint: ${HRM_ENDPOINT:http://139.224.241.191:8080/services/HrmService}
+  endpoint: http://139.224.241.191:8080/services/HrmService
   # 由接口方加入 OA 白名单的当前机器 IPv4 地址，未配置时应用照常启动，调用时才报错
-  client-ip: ${HRM_CLIENT_IP:}
+  client-ip: ''
   connect-timeout-seconds: 10
   read-timeout-seconds: 30
   log-response-body: false

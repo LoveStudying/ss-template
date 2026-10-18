@@ -6,7 +6,12 @@ import org.dromara.common.hrm.domain.HrmUserQuery;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
+import org.springframework.boot.env.YamlPropertySourceLoader;
+import org.springframework.core.io.FileSystemResource;
 
+import java.io.IOException;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,10 +22,12 @@ class HrmLiveTest {
 
     @ParameterizedTest(name = "{0}")
     @ValueSource(strings = {"getHrmSubcompanyInfo", "getHrmDepartmentInfo", "getHrmJobTitleInfo", "getHrmUserInfo"})
-    void queriesLiveService(String method) {
-        HrmProperties properties = new HrmProperties();
-        properties.setEndpoint(env("HRM_ENDPOINT", "http://139.224.241.191:8080/services/HrmService"));
-        properties.setClientIp(env("HRM_CLIENT_IP", ""));
+    void queriesLiveService(String method) throws IOException {
+        String configPath = System.getProperty("hrm.live.config",
+            "../../ruoyi-admin/src/main/resources/application-dev.yml");
+        var sources = new YamlPropertySourceLoader().load("hrm-live", new FileSystemResource(configPath));
+        HrmProperties properties = new Binder(ConfigurationPropertySources.from(sources))
+            .bind("hrm", HrmProperties.class).get();
         HrmUserQuery query = new HrmUserQuery();
         // 默认查询不存在的测试编码，防止首次联调意外拉取全量人员资料。
         query.setWorkcode(env("HRM_TEST_WORKCODE", "__HRM_CONNECTIVITY_PROBE__"));
