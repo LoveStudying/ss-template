@@ -9,7 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.env.YamlPropertySourceLoader;
+import org.springframework.core.env.PropertyResolver;
+import org.springframework.core.io.FileSystemResource;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -23,60 +27,62 @@ import static org.assertj.core.api.Assertions.assertThat;
 class WecomLiveTest {
 
     @Test
-    void probesAvailableReadOnlyEndpoints() {
+    void probesAvailableReadOnlyEndpoints() throws IOException {
+        String configPath = System.getProperty("wecom.live.config",
+            "../../ruoyi-admin/src/main/resources/application-local.yml");
+        var sources = new YamlPropertySourceLoader().load("wecom-live", new FileSystemResource(configPath));
         new ApplicationContextRunner().withConfiguration(AutoConfigurations.of(WecomAutoConfiguration.class))
-            .withPropertyValues("wecom.enabled=true", "wecom.corp-id=" + env("WECOM_CORP_ID", ""),
-                "wecom.corp-secret=" + env("WECOM_CORP_SECRET", ""),
-                "wecom.oauth-agent-id=" + env("WECOM_OAUTH_AGENT_ID", ""))
+            .withInitializer(context -> sources.forEach(source -> context.getEnvironment().getPropertySources().addLast(source)))
             .run(context -> {
                 // 不把携带外部配置的 context 对象用于失败断言，避免诊断时打印凭据。
                 assertThat(context.getStartupFailure() == null).as("企业微信自动配置必须正常启动").isTrue();
-                configureTestProxy(context.getBean(WxCpService.class));
+                PropertyResolver config = context.getEnvironment();
+                configureTestProxy(context.getBean(WxCpService.class), config);
                 WecomClient client = context.getBean(WecomClient.class);
                 String token = probe("gettoken", client::getAccessToken, "取得凭证，值不输出");
                 if (token == null) {
                     System.out.println("WECOM_PROBE directory/auth=BLOCKED prerequisite=gettoken");
                 } else {
-                    probeDirectory(client);
-                    String code = env("WECOM_OAUTH_CODE", "");
+                    probeDirectory(client, config);
+                    String code = config.getProperty("wecom-probe.oauth-code", "");
                     if (code.isBlank()) {
-                        System.out.println("WECOM_PROBE auth/getuserinfo=NOT_RUN missing=WECOM_OAUTH_CODE");
+                        System.out.println("WECOM_PROBE auth/getuserinfo=NOT_RUN missing=wecom-probe.oauth-code");
                     } else {
                         probe("auth/getuserinfo", () -> client.getAuthUserInfo(code), "已解析身份，值不输出");
                     }
                 }
-                String redirectUri = env("WECOM_OAUTH_REDIRECT_URI", "");
+                String redirectUri = config.getProperty("wecom.oauth-redirect-uri", "");
                 if (redirectUri.isBlank()) {
-                    System.out.println("WECOM_PROBE oauth2/authorize=NOT_RUN missing=WECOM_OAUTH_REDIRECT_URI");
+                    System.out.println("WECOM_PROBE oauth2/authorize=NOT_RUN missing=wecom.oauth-redirect-uri");
                 } else {
-                    String url = client.buildAuthorizationUrl(redirectUri, "WecomProbeState123");
+                    String url = client.buildAuthorizationUrl("WecomProbeState123");
                     assertThat(url.startsWith("https://open.weixin.qq.com/connect/oauth2/authorize?")).isTrue();
                     System.out.println("WECOM_PROBE oauth2/authorize=BUILT_ONLY browserAuthorization=NOT_RUN");
                 }
             });
     }
 
-    private void configureTestProxy(WxCpService sdk) {
-        String proxyHost = env("WECOM_TEST_PROXY_HOST", "");
+    private void configureTestProxy(WxCpService sdk, PropertyResolver config) {
+        String proxyHost = config.getProperty("wecom-probe.proxy-host", "");
         if (!proxyHost.isBlank()) {
             // 仅在显式联调中复用当前机器的出站代理，不改变生产配置或关闭 TLS 校验。
             WxCpDefaultConfigImpl storage = (WxCpDefaultConfigImpl) sdk.getWxCpConfigStorage();
             storage.setHttpProxyHost(proxyHost);
-            storage.setHttpProxyPort(Integer.parseInt(env("WECOM_TEST_PROXY_PORT", "8080")));
+            storage.setHttpProxyPort(config.getProperty("wecom-probe.proxy-port", Integer.class, 8080));
             sdk.initHttp();
         }
     }
 
-    private void probeDirectory(WecomClient client) {
+    private void probeDirectory(WecomClient client, PropertyResolver config) {
         List<WxCpDepart> departments = probe("department/simplelist", () -> client.listDepartmentIds(null), "已解析 ID 列表");
-        String departmentEnv = env("WECOM_TEST_DEPARTMENT_ID", "");
-        long departmentId = departmentEnv.isBlank()
+        String configuredDepartmentId = config.getProperty("wecom-probe.department-id", "");
+        long departmentId = configuredDepartmentId.isBlank()
             ? (departments == null || departments.isEmpty() ? 1L : departments.getFirst().getId())
-            : Long.parseLong(departmentEnv);
+            : Long.parseLong(configuredDepartmentId);
         probe("department/get", () -> client.getDepartment(departmentId), "已解析部门详情，值不输出");
         // 只读一个部门且不递归，以取得一个有效 UserId 后验证 user/get，不拉取全量通讯录。
         List<WxCpUser> users = probe("user/list", () -> client.listUsers(departmentId, false), "已解析成员列表");
-        String userId = env("WECOM_TEST_USER_ID", "");
+        String userId = config.getProperty("wecom-probe.user-id", "");
         if (userId.isBlank() && users != null && !users.isEmpty()) {
             userId = users.getFirst().getUserId();
         }
@@ -104,8 +110,4 @@ class WecomLiveTest {
         }
     }
 
-    private String env(String key, String fallback) {
-        String value = System.getenv(key);
-        return value == null || value.isBlank() ? fallback : value;
-    }
 }

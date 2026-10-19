@@ -34,6 +34,7 @@ public class WecomAutoConfiguration {
         storage.setCorpId(properties.getCorpId());
         storage.setCorpSecret(properties.getCorpSecret());
         storage.setAgentId(properties.getOauthAgentId());
+        storage.setOauth2redirectUri(properties.getOauthRedirectUri());
         WxCpServiceImpl sdk = new WxCpServiceImpl();
         sdk.setWxCpConfigStorage(storage);
         return sdk;

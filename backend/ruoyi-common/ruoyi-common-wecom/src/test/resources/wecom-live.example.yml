@@ -1,0 +1,15 @@
+# 复制到 ruoyi-admin/src/main/resources/application-local.yml 后填写真实配置，不提交真实凭据。
+wecom:
+  enabled: true
+  corp-id: ''
+  corp-secret: ''
+  oauth-agent-id: 1000412
+  oauth-redirect-uri: ''
+
+# 仅 WecomLiveTest 读取，主应用不使用此段。
+wecom-probe:
+  department-id: ''
+  user-id: ''
+  oauth-code: ''
+  proxy-host: ''
+  proxy-port: 8080

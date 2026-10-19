@@ -95,6 +95,16 @@ public class WecomClient {
     }
 
     /**
+     * 使用 wecom.oauth-redirect-uri 配置的回调地址构造授权链接，不发起网络请求。
+     *
+     * @param state 调用方生成并在回调校验的一次性随机串，限 1 至 128 位字母和数字
+     * @return 包含配置回调地址的 snsapi_base 授权链接
+     */
+    public String buildAuthorizationUrl(String state) {
+        return buildAuthorizationUrl(service.getWxCpConfigStorage().getOauth2redirectUri(), state);
+    }
+
+    /**
      * 构造 snsapi_base 网页授权链接，不发起网络请求，也不自动创建登录会话。
      *
      * @param redirectUri 已在企业微信配置可信域名的 HTTP(S) 回调地址

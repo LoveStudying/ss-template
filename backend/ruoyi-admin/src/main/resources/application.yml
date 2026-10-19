@@ -45,12 +45,14 @@ auth:
 org-sync:
   source: hrm
 
-# 企业微信自建应用；默认关闭，凭据仅从环境变量读取
+# 企业微信自建应用；直接填写配置，真实密钥请放在不提交 Git 的 application-local.yml 中
 wecom:
-  enabled: ${WECOM_ENABLED:false}
-  corp-id: ${WECOM_CORP_ID:}
-  corp-secret: ${WECOM_CORP_SECRET:}
-  oauth-agent-id: ${WECOM_OAUTH_AGENT_ID:}
+  enabled: false
+  corp-id: ''
+  corp-secret: ''
+  oauth-agent-id: 1000412
+  # 完整回调地址，例如 https://你的域名/wecom/callback；目前尚未实现回调处理接口
+  oauth-redirect-uri: ''
 
 # 用户配置
 user:

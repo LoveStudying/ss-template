@@ -138,7 +138,7 @@ java -jar ruoyi-admin/target/ruoyi-admin.jar --spring.profiles.active=dev
 - 三生 SSO 配置位于 `justauth.type.sso`：dev 对应测试地址，prod 对应正式地址；客户端凭据、回调地址和授权范围需要填写。接入及联调约束见 [三生 SSO 接入说明](backend/docs/三生SSO接入说明.md)。
 - 组织信息来源由 `application.yml` 的 `org-sync.source` 配置（`hrm`/`none`，其他值启动失败）；HRM 地址见 dev/prod 配置的 `hrm.endpoint`，`hrm.client-ip` 必须在对应配置文件中填写经接口方加入 OA 白名单的地址才能实际调用。外网无法联调，见 [组织信息来源接入说明](backend/docs/组织信息来源接入说明.md)。
 - 默认登录入口直接在 `application.yml` 的 `auth.login-mode` 中配置，默认 `system`：`system` 显示系统登录页，`sso` 自动跳转三生 SSO；`/login?local=true` 始终保留本地登录。该配置只选择入口，不禁用本地认证接口。
-- 企业微信使用 `wecom.*` 配置及 `WECOM_*` 环境变量，默认关闭；接入及显式只读联调见 [企业微信接入说明](backend/docs/企业微信接入说明.md)。SDK 原始日志可能包含令牌，保持 `me.chanjar.weixin`、`org.apache.http` 为 `OFF`；普通测试不访问真实接口。
+- 企业微信直接使用 YAML 文件中的 `wecom.*` 配置，默认关闭；网页授权回调地址为 `wecom.oauth-redirect-uri`，尚无回调处理接口。真实密钥可放在已忽略的 `application-local.yml`，主应用通过 `--spring.profiles.include=local` 加载；显式联调直接读取该文件，详见 [企业微信接入说明](backend/docs/企业微信接入说明.md)。SDK 原始日志可能包含令牌，保持 `me.chanjar.weixin`、`org.apache.http` 为 `OFF`；普通测试不访问真实接口。
 - 使用已有 Spring Test、JUnit Jupiter、Mockito。测试主要在 common 模块，另有系统消息、组织信息同步（mock 来源，未连真实 OA 和数据库）和 SnailJob 监控鉴权回归测试；不能据此推断登录和所有系统业务已覆盖。
 - POM 当前 `maven.test.skip=false`，Surefire 排除 `exclude` 标签。不得通过跳过测试或降低断言处理失败。
 - 未确认仓库有统一 Java lint/格式化命令，不凭经验新增插件；只改文档不必启动服务或跑全量构建。

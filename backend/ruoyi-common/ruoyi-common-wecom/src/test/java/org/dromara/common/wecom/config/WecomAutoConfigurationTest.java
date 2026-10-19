@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 class WecomAutoConfigurationTest {
@@ -41,6 +42,29 @@ class WecomAutoConfigurationTest {
     void rejectsMissingCredentialsOnlyWhenEnabled() {
         runner.withPropertyValues("wecom.enabled=true").run(context -> assertThat(context).hasFailed());
         runner.withPropertyValues("wecom.enabled=false").run(context -> assertThat(context).hasNotFailed());
+    }
+
+    @Test
+    void usesConfiguredCallbackWhenBuildingAuthorizationUrl() {
+        runner.withPropertyValues("wecom.enabled=true", "wecom.corp-id=test-corp",
+            "wecom.corp-secret=test-secret", "wecom.oauth-agent-id=42",
+            "wecom.oauth-redirect-uri=https://example.com/wecom/callback").run(context -> {
+                assertThat(context).hasNotFailed();
+                String url = context.getBean(WecomClient.class).buildAuthorizationUrl("SessionNonce123");
+                assertThat(url).contains("redirect_uri=https%3A%2F%2Fexample.com%2Fwecom%2Fcallback",
+                    "state=SessionNonce123", "agentid=42");
+            });
+    }
+
+    @Test
+    void requiresConfiguredCallbackOnlyForAuthorization() {
+        runner.withPropertyValues("wecom.enabled=true", "wecom.corp-id=test-corp",
+            "wecom.corp-secret=test-secret", "wecom.oauth-agent-id=42", "wecom.oauth-redirect-uri=")
+            .run(context -> {
+                assertThat(context).hasNotFailed();
+                assertThatThrownBy(() -> context.getBean(WecomClient.class).buildAuthorizationUrl("State1"))
+                    .isInstanceOf(IllegalArgumentException.class);
+            });
     }
 
     @Test

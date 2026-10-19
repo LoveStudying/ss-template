@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** 企业微信自建应用配置，凭据仅由外部配置提供，不参与对象字符串输出。 */
+/** 企业微信自建应用配置，凭据从配置文件提供，不参与对象字符串输出。 */
 @Getter
 @Setter
 @ConfigurationProperties(prefix = "wecom")
@@ -21,4 +21,7 @@ public class WecomProperties {
 
     /** 网页授权使用的自建应用 AgentId，构造授权链接时必须为正数。 */
     private Integer oauthAgentId;
+
+    /** 网页授权回调完整地址，其域名须已在企业微信应用配置为可信域名。 */
+    private String oauthRedirectUri;
 }
