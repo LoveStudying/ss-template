@@ -158,6 +158,12 @@
                 <artifactId>ruoyi-common-hrm</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <!-- 企业微信只读接口客户端 -->
+            <dependency>
+                <groupId>org.dromara</groupId>
+                <artifactId>ruoyi-common-wecom</artifactId>
+                <version>${revision}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>

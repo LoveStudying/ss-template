@@ -56,6 +56,12 @@
             <artifactId>ruoyi-common-social</artifactId>
         </dependency>
 
+        <!-- 企业微信只读接口客户端 -->
+        <dependency>
+            <groupId>org.dromara</groupId>
+            <artifactId>ruoyi-common-wecom</artifactId>
+        </dependency>
+
         <!-- 邮件服务 -->
         <dependency>
             <groupId>org.dromara</groupId>

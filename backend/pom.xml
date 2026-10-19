@@ -56,6 +56,7 @@
         <aws.sdk.version>2.55.4</aws.sdk.version>
         <!-- SMS 配置 -->
         <sms4j.version>3.3.5</sms4j.version>
+        <wxjava.version>4.8.0</wxjava.version>
 
         <!-- Maven 构建插件版本 -->
         <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
@@ -287,6 +288,21 @@
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcutil-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.binarywang</groupId>
+                <artifactId>weixin-java-cp</artifactId>
+                <version>${wxjava.version}</version>
             </dependency>
 
             <!-- Mapstruct Plus -->

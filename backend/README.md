@@ -7,6 +7,7 @@
 - 系统管理：用户、角色、菜单、部门、岗位、字典、参数、日志、客户端与数据权限。
 - 认证：Sa-Token、验证码、第三方登录、注册与接口加解密。
 - 基础设施：Redis/Redisson、MyBatis-Plus、OSS 文件存储、消息管理、SSE/WebSocket、邮件与短信。
+- 企业微信：可选 WxJava 只读客户端，支持凭证、身份、成员/部门查询与授权链接；默认关闭，见 [企业微信接入说明](docs/企业微信接入说明.md)。
 - 开发支持：后端与前端代码生成器、OpenAPI 文档、现有 AI 编码规范。
 - 任务调度：`ruoyi-job` 与独立 `ruoyi-snailjob-server`。
 

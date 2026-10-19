@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- SDK 在 WARN 中也可能记录包含令牌的 URL，联调和单元测试均禁止原始请求日志。 -->
+    <logger name="me.chanjar.weixin" level="OFF"/>
+    <logger name="org.apache.http" level="OFF"/>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder><pattern>%level %logger{36} - %msg%n</pattern></encoder>
+    </appender>
+    <root level="WARN"><appender-ref ref="CONSOLE"/></root>
+</configuration>

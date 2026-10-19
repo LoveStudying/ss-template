@@ -37,6 +37,7 @@
         <module>ruoyi-common-encrypt</module>
         <module>ruoyi-common-push</module>
         <module>ruoyi-common-hrm</module>
+        <module>ruoyi-common-wecom</module>
     </modules>
 
 </project>
