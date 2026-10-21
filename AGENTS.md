@@ -166,7 +166,6 @@ pnpm exec vitest run src/utils/__tests__/dept-sync.test.ts src/utils/__tests__/u
 
 ## 安全与交付
 
-- 仅读取最小必要的敏感配置；不要打印、复制或提交密码、JWT 密钥、私钥、令牌及个人信息，示例和日志必须脱敏。
 - 不沿用示例凭据作为生产凭据。数据库初始化可能含建表、删除或种子数据，执行前确认目标和范围。
 - 主应用和 SnailJob 的 Actuator 保留 Basic 鉴权，凭据配置为 `management.auth.username/password`，通过 `ACTUATOR_USERNAME`、`ACTUATOR_PASSWORD` 提供；默认空且未配置时拒绝监控访问。Nginx 继续拒绝外部 Actuator 路径，修改监控配置时同步核对鉴权。
 - `script/sql` 是新库初始化脚本，本次裁剪不提供或执行现有数据库的删除迁移。
