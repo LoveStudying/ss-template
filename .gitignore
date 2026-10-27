@@ -55,6 +55,10 @@
 /backend/**/application-local.yml
 /backend/**/application-ga.yml
 
+# 本地增量 SQL，仅提交目录占位文件
+/backend/script/sql/incremental/*
+!/backend/script/sql/incremental/.gitkeep
+
 # Frontend
 /frontend/**/.DS_Store
 /frontend/**/.history

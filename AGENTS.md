@@ -45,6 +45,7 @@
 | `ruoyi-modules/ruoyi-job/` | 任务调度业务 |
 | `ruoyi-extend/ruoyi-snailjob-server/` | 独立 SnailJob 调度中心 |
 | `script/sql/` | 初始化 SQL，含不同数据库版本；执行前确认目标数据库和脚本影响 |
+| `script/sql/incremental/` | 增量更新 SQL 脚本，默认不提交 |
 | `script/docker/` | 原框架部署示例，包含多个应用实例和扩展服务，不代表公司最终部署方案 |
 
 ### 前端
@@ -169,6 +170,7 @@ pnpm exec vitest run src/utils/__tests__/dept-sync.test.ts src/utils/__tests__/u
 - 不沿用示例凭据作为生产凭据。数据库初始化可能含建表、删除或种子数据，执行前确认目标和范围。
 - 主应用和 SnailJob 的 Actuator 保留 Basic 鉴权，凭据配置为 `management.auth.username/password`，通过 `ACTUATOR_USERNAME`、`ACTUATOR_PASSWORD` 提供；默认空且未配置时拒绝监控访问。Nginx 继续拒绝外部 Actuator 路径，修改监控配置时同步核对鉴权。
 - `script/sql` 是新库初始化脚本，本次裁剪不提供或执行现有数据库的删除迁移。
+- 增量更新 SQL 脚本默认放在 `backend/script/sql/incremental/`；该目录中的脚本默认不提交 Git，仅跟踪目录占位文件 `.gitkeep`，用户明确要求提交具体脚本时除外。
 - 未经用户明确要求，不删除数据、强制重置、覆盖历史、推送、发布、部署或修改外部资源。
 - 更改品牌可替换页面展示，但保留上游 LICENSE 与版权声明；依赖许可另按实际使用核对。
 - 完成前在根目录检查整个仓库的差异，排除调试输出、临时文件、敏感信息和无关锁文件变更。
