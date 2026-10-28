@@ -5,7 +5,8 @@ import type { UserInfo } from '@/api/system/user/types';
 import type { LoginData, LoginResult } from '@/api/types';
 import type { RuoYiAjaxResult } from '@/utils/api-types';
 import { getInfo as getUserInfo, login as loginApi, logout as logoutApi } from '@/api/login';
-import defAva from '@/assets/images/profile.jpg';
+import femaleAvatar from '@/assets/images/avatar-female.png';
+import maleAvatar from '@/assets/images/avatar-male.png';
 import { getToken, removeToken, setToken } from '@/utils/auth';
 
 export const useUserStore = defineStore('user', () => {
@@ -45,7 +46,8 @@ export const useUserStore = defineStore('user', () => {
         return Promise.reject(err);
       }
       const user = data.user;
-      const profile = user.avatarUrl == '' || user.avatarUrl == null ? defAva : user.avatarUrl;
+      const defaultAvatar = user.gender === '1' ? femaleAvatar : maleAvatar;
+      const profile = user.avatarUrl == '' || user.avatarUrl == null ? defaultAvatar : user.avatarUrl;
 
       if (data.roles && data.roles.length > 0) {
         // 验证返回的roles是否是一个非空数组
